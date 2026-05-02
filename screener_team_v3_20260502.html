@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SEC Screener Pro — TEAM · Go V3</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;background:#f0f2f5;color:#222;padding:14px 10px 40px;line-height:1.5;font-size:14px}
+.wrap{max-width:700px;margin:0 auto}
+.hdr{background:#1a1a2e;border-radius:12px;padding:16px 18px;color:#fff;margin-bottom:14px}
+.hdr h1{font-size:20px;font-weight:600}
+.hdr p{font-size:12px;color:#aaa;margin-top:4px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.hbadge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.method-box{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 13px;margin-bottom:13px}
+.method-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0;font-size:12px}
+.verdict-banner{border-radius:10px;padding:14px 16px;margin-bottom:13px;display:flex;align-items:center;gap:14px}
+.vb-right{flex:1}
+.vb-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.vb-sub{font-size:12px;line-height:1.6}
+.tcard{background:#fff;border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.tcard-hdr{background:#1a1a2e;padding:13px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start}
+.tcard-ticker{font-size:24px;font-weight:700}
+.tcard-co{font-size:11px;color:#bbb;margin-top:2px}
+.price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 13px 0}
+@media(min-width:480px){.price-grid{grid-template-columns:repeat(4,1fr)}}
+.price-cell{background:#f5f5f5;border-radius:8px;padding:8px 10px}
+.pc-label{font-size:10px;color:#888}
+.pc-val{font-size:16px;font-weight:700;margin-top:2px}
+.section{margin:11px 13px;border:0.5px solid #e8e8e8;border-radius:10px;overflow:hidden}
+.section-hdr{background:#f8f8f8;border-bottom:0.5px solid #eee;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.section-title{font-size:13px;font-weight:700;color:#111}
+.section-sub{font-size:10px;color:#aaa}
+.section-body{padding:11px 12px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:600}
+.conv-wrap{display:flex;align-items:center;gap:8px}
+.conv-track{width:80px;height:5px;background:#555;border-radius:3px}
+.conv-fill{height:5px;border-radius:3px}
+.conv-label{font-size:11px;font-weight:700}
+.lbl{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;margin-top:12px}
+.lbl:first-child{margin-top:0}
+.sumtext{font-size:13px;color:#444;font-style:italic;line-height:1.65;padding:9px 11px;background:#fafafa;border-radius:7px;margin-bottom:10px}
+.evtable{width:100%;border-collapse:collapse}
+.evtable td{padding:6px 5px;font-size:12px;border-bottom:0.5px solid #f5f5f5;vertical-align:top}
+.evtable tr:last-child td{border-bottom:none}
+.ev-date{color:#888;white-space:nowrap;min-width:72px}
+.ev-sig{text-align:right;white-space:nowrap;font-size:11px;font-weight:700;min-width:58px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+@media(min-width:480px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+.kpi-cell{background:#f5f5f5;border-radius:7px;padding:7px 9px}
+.kpi-label{font-size:10px;color:#888}
+.kpi-val{font-size:14px;font-weight:700;margin-top:2px}
+.hlbox{border-radius:8px;padding:9px 11px;margin-bottom:10px;border:0.5px solid}
+.hlbox-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.hlbox-body{font-size:12px;line-height:1.6}
+.hlbox-sub{font-size:11px;color:#666;font-style:italic;margin-top:3px}
+.risk-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f5f5f5}
+.risk-row:last-child{border-bottom:none}
+.risk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.risk-text{flex:1;font-size:12px;line-height:1.5}
+.risk-level{font-size:11px;font-weight:700;white-space:nowrap}
+.pos-row{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12px;line-height:1.5}
+.pos-check{color:#3B6D11;font-size:15px;flex-shrink:0}
+.nlp-header{display:flex;align-items:flex-end;gap:14px;margin-bottom:10px}
+.nlp-big{font-size:52px;font-weight:700;line-height:1}
+.nlp-big-unit{font-size:18px;color:#aaa;font-weight:400}
+.nlp-meta{flex:1;border-left:2px solid #eee;padding-left:12px}
+.nlp-meta-row{font-size:12px;color:#555;padding:2px 0}
+.nlp-meta-val{font-weight:700;color:#222}
+.nlp-bar-outer{height:8px;background:#eee;border-radius:4px;margin:7px 0 13px}
+.nlp-bar-inner{height:8px;border-radius:4px}
+.nlp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid #f8f8f8}
+.nlp-row:last-child{border-bottom:none}
+.nlp-cat{min-width:140px;font-size:12px;color:#333;font-weight:500}
+.nlp-wt{font-size:10px;color:#aaa;min-width:24px}
+.nlp-track{flex:1;height:5px;background:#f0f0f0;border-radius:3px}
+.nlp-fill{height:5px;border-radius:3px}
+.nlp-score{font-size:11px;font-weight:700;min-width:48px;text-align:right}
+.nlp-excerpt{font-size:11px;color:#555;font-style:italic;margin-top:2px;padding-left:164px;display:block;line-height:1.5}
+.neg-box{margin-top:10px;padding:8px 11px;background:#FCEBEB;border-radius:7px;border-left:3px solid #E24B4A}
+.neg-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px}
+.neg-cat{min-width:130px;color:#A32D2D;font-weight:600}
+.neg-score{color:#A32D2D;font-weight:700;min-width:44px;text-align:right}
+.valid-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.valid-cell{border-radius:8px;padding:8px 10px;border:0.5px solid}
+.valid-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px}
+.valid-val{font-size:13px;font-weight:700}
+.valid-sub{font-size:11px;margin-top:2px;opacity:0.8}
+.inst-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.fund-table{width:100%;border-collapse:collapse;font-size:12px}
+.fund-table th{padding:5px 7px;text-align:left;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;border-bottom:1px solid #eee;background:#fafafa}
+.fund-table td{padding:6px 7px;border-bottom:0.5px solid #f5f5f5;vertical-align:middle}
+.fund-table tr:last-child td{border-bottom:none}
+.fn{font-weight:600;color:#222}
+.ft{font-size:10px;color:#888;font-weight:400;display:block}
+.du{color:#3B6D11;font-weight:700}
+.dd{color:#A32D2D;font-weight:700}
+.dn{color:#854F0B;font-weight:700}
+.comment-box{font-size:13px;color:#222;line-height:1.75;padding:11px 13px;border-radius:8px;border-left:4px solid;background:#f9f9f9}
+.comment-box strong{display:block;font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-top:9px;margin-bottom:2px}
+.comment-box strong:first-child{margin-top:0}
+.catalyst-box{font-size:13px;line-height:1.65;padding:9px 12px;background:#f0f7ff;border-radius:8px;border-left:4px solid #378ADD;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.footer{font-size:11px;color:#bbb;text-align:center;padding-top:11px;border-top:0.5px solid #e0e0e0;margin-top:8px;line-height:1.6}
+.accel-box{background:#f0f9f4;border:0.5px solid #5DCAA5;border-radius:8px;padding:9px 11px;margin-bottom:10px}
+.gf-box{background:#1a1a2e;border-radius:10px;padding:12px 14px;color:#fff;margin-bottom:10px}
+.gf-score-big{font-size:44px;font-weight:700;color:#5DCAA5;line-height:1}
+.gf-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #2a2a4a;font-size:12px}
+.gf-row:last-child{border-bottom:none}
+.gf-label{color:#aaa}
+.gf-val{font-weight:700}
+.warn-box{background:#FCEBEB;border-radius:8px;padding:8px 11px;border-left:3px solid #E24B4A;margin-top:8px}
+.warn-item{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12px}
+.warn-sev{font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;margin-top:1px}
+.wein-box{background:#1a1a2e;border-radius:10px;padding:12px 14px;color:#fff;margin-bottom:10px}
+.wein-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.wein-cell{background:#2a2a4a;border-radius:7px;padding:7px 10px}
+.wein-clabel{font-size:10px;color:#aaa}
+.wein-cval{font-size:13px;font-weight:700;margin-top:2px}
+.f4-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f5f5f5;font-size:12px}
+.f4-row:last-child{border-bottom:none}
+.f4-type{padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap}
+.conv-score-box{display:flex;align-items:center;gap:16px;padding:12px 14px;border-radius:10px;margin-bottom:10px}
+.conv-score-num{font-size:56px;font-weight:700;line-height:1}
+.conv-score-right{flex:1}
+.conv-score-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.conv-score-sub{font-size:12px;line-height:1.6}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <h1>SEC Screener Pro — Go V3 · Rigueur Maximale</h1>
+  <p>TEAM · Atlassian Corporation &nbsp;·&nbsp;
+     Transcripts complets · NLP Claude · Form 4 · GuruFocus · Weinstein · 2 May 2026</p>
+  <div class="badges">
+    <span class="hbadge" style="background:#0F6E5630;color:#5DCAA5">SEC / EDGAR</span>
+    <span class="hbadge" style="background:#185FA530;color:#85B7EB">NLP Claude réel</span>
+    <span class="hbadge" style="background:#85400B30;color:#EF9F27">Weinstein Précis</span>
+    <span class="hbadge" style="background:#53400030;color:#FAC775">Form 4 Insiders</span>
+    <span class="hbadge" style="background:#3B6D1130;color:#7AC943">Score NLP 85/100</span>
+    <span class="hbadge" style="background:#4a003030;color:#e06faa">GuruFocus</span>
+  </div>
+</div>
+
+<div class="method-box">
+  <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px">🔬 Méthodologie Go V3 — Standard complet respecté</div>
+  <div class="method-row"><span>📄</span><span><strong>Passe 1 — Transcripts :</strong>
+    Fetch + lecture intégrale Motley Fool — Q3 2026 + Q2 2026. ~15,093 mots analysés par Claude.</span></div>
+  <div class="method-row"><span>🏛</span><span><strong>Passe 2 — SEC/EDGAR :</strong>
+    8 filings 8-K · 10 Form 4 insiders parsés · CIK 0001650372.</span></div>
+  <div class="method-row"><span>📊</span><span><strong>Passe 3 — GuruFocus + Marché :</strong>
+    GF Score, GF Value, warning signs · Prix $88.88 ·
+    52S $56.01–$232.36 ·
+    Cap ~$23B.</span></div>
+  <div class="method-row"><span>📈</span><span><strong>Passe 4 — Weinstein :</strong>
+    Historique hebdomadaire · MA30W calculée en pandas · Phase détectée automatiquement.</span></div>
+  <div class="method-row"><span>🤖</span><span><strong>Passe 5 — Analyse Claude :</strong>
+    Envoi des ~15,093 mots à l'API Claude · NLP 9 catégories · verbatims réels ·
+    score /100 · conviction /10 · rédaction complète.</span></div>
+</div>
+
+<div class="verdict-banner" style="background:#FAEEDA;border:1.5px solid #854F0B">
+  <div>
+    <div class="nlp-big" style="color:#854F0B">85<span class="nlp-big-unit">/100</span></div>
+    <div style="font-size:13px;color:#854F0B;font-weight:700">Score NLP Claude</div>
+  </div>
+  <div class="vb-right">
+    <div class="vb-title" style="color:#854F0B">TEAM · Phase 3 avancé · +62.3% upside</div>
+    <div class="vb-sub" style="color:#444">Atlassian delivered an exceptional Q3 with 32% total revenue growth to $1.8B and cloud acceleration to 29% YoY ($1.1B+). The Rovo AI platform is a powerful flywheel—customers using it grow ARR at 2x non-users, with credit usage up 20%+ MoM. NRR sustained >120% improving sequentially, RPO reached $4B (+37% YoY), and Service Collection surpassed $1B ARR. Record competitive ITSM displacements and 75% Fortune 500 adoption of Service Collection document share gains. The Teamwork Graph (100B+ objects) creates a structural moat for AI context delivery. Data center pull-forward ($50M) creates near-term lumpiness but is a transition artifact. Management reaffirmed 20%+ CAGR through FY2027 with 25%+ non-GAAP margins. This is a premium AI-native SaaS compounder executing at scale.</div>
+  </div>
+</div>
+
+<div class="conv-score-box" style="background:#1a1a2e;border:1.5px solid #5DCAA5">
+  <div>
+    <div class="conv-score-num" style="color:#5DCAA5">7<span style="font-size:24px;color:#aaa">/10</span></div>
+    <div style="font-size:11px;color:#5DCAA5;font-weight:700;margin-top:4px">Score Conviction</div>
+  </div>
+  <div class="conv-score-right">
+    <div class="conv-score-title" style="color:#fff">✅ Healthy</div>
+    <div class="conv-score-sub" style="color:#aaa">Atlassian delivered an exceptional Q3 with 32% total revenue growth to $1.8B and cloud acceleration to 29% YoY ($1.1B+). The Rovo AI platform is a powerful flywheel—customers using it grow ARR at 2x n</div>
+  </div>
+</div>
+
+<div class="tcard" style="border:2px solid #854F0B">
+  <div class="tcard-hdr">
+    <div>
+      <div class="tcard-ticker">TEAM</div>
+      <div class="tcard-co">Atlassian Corporation · NMS · Cap ~$23B · Technology · 13,813 employés</div>
+    </div>
+    <div style="text-align:right"><div style="font-size:10px;color:#666">Q3 2026 : 2026-04-30</div><div style="font-size:10px;color:#666">Q2 2026 : 2026-02-05</div></div>
+  </div>
+  <div class="price-grid">
+    <div class="price-cell"><div class="pc-label">Prix actuel</div>
+      <div class="pc-val">$88.88</div></div>
+    <div class="price-cell"><div class="pc-label">Bas 52S</div>
+      <div class="pc-val" style="color:#888">$56.01</div></div>
+    <div class="price-cell"><div class="pc-label">ATH 52S</div>
+      <div class="pc-val" style="color:#888">$232.36</div></div>
+    <div class="price-cell"><div class="pc-label">vs ATH</div>
+      <div class="pc-val" style="color:#A32D2D">-61.7%</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">SEC Monitor</span>
+        <span class="section-sub"> · Q3 2026 + Q2 2026 · ~15,093 mots lus intégralement par Claude</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div>
+          <div style="font-size:9px;color:#999;margin-bottom:2px">conviction</div>
+          <div class="conv-wrap">
+            <div class="conv-track">
+              <div class="conv-fill" style="width:70%;background:#854F0B"></div>
+            </div>
+            <span class="conv-label" style="color:#854F0B">7/10</span>
+          </div>
+        </div>
+        <span class="badge" style="background:#E1F5EE;color:#0F6E56;border:1px solid #0F6E56">
+          ✓ Healthy
+        </span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="sumtext">Reading Q2 and Q3 transcripts sequentially reveals a management team accelerating its narrative from 'strong momentum' to 'largest-ever quarter' with tangible proof points. In Q2, Cannon-Brookes introduced the 5%/5%/5% AI code generation impact data and celebrated the first $1B cloud quarter. By Q3, the narrative sharpened: Rovo credit usage growing 20%+ MoM, customers using Rovo growing ARR at 2x rates, and Service Collection crossing $1B ARR. The competitive displacement language intensified—'largest-ever quarter for competitive displacements from a major ITSM provider' is new and aggressive. CFO transition from Joe Binz to James is notable; James immediately flagged data center lumpiness and pull-forward effects with candor, planning Investor Forum disclosure of 'historical subscription ARR' to improve transparency. The Teamwork Graph language evolved from '100 billion objects' (Q2) to 'richest enterprise context graphs in the world' making AI 'better, faster, and cheaper' with fewer tokens (Q3)—a direct response to market concerns about AI cost inflation. Management's conviction tone escalated measurably: 'AI is one of the best things that has ever happened to Atlassian Corporation' appeared in both quarters. RPO deceleration from 44% to 37% was not addressed proactively, which bears monitoring. Overall, the discourse evolution signals genuine operational acceleration, not narrative inflation.</div>
+      
+      <div class="accel-box">
+        <div style="font-size:11px;font-weight:700;color:#0F6E56;margin-bottom:6px">
+          📈 Tableau d'accélération Q2 2026 → Q3 2026</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;font-size:11px">
+          <div style="font-weight:700;color:#555;padding:3px 0">Métrique</div>
+          <div style="font-weight:700;color:#185FA5;padding:3px 0;text-align:center">Q2 2026</div>
+          <div style="font-weight:700;color:#0F6E56;padding:3px 0;text-align:center">Q3 2026</div>
+          
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Total Revenue YoY Growth</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">Not explicitly stated (Q2)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">32% ($1.8B, Q3) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Cloud Revenue YoY Growth</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">26% ($1.0B, Q2)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">29% ($1.1B, Q3) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">RPO YoY Growth</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">44% ($3.8B, Q2)</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">37% ($4.0B, Q3) ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">NRR</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">>120% (improving, Q2)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">>120% (ticked up 3-4th quarter, Q3) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Rovo MAU</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">5M+ (Q2)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">Millions added, 20%+ MoM credit growth (Q3) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">$1M+ ACV Deals</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">Record, ~2x YoY (Q2)</div>
+          <div style="color:#888;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">Not separately disclosed (Q3) →</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Service Collection ARR</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">Not disclosed (Q2)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">Surpassed $1B (Q3) ↑</div>
+        </div>
+      </div>
+      <div class="lbl">Events matériels</div>
+      <table class="evtable"><tbody>
+        <tr>
+          <td class="ev-date">2026-04-30</td>
+          <td style="font-size:12px;padding:6px 5px">Q3 FY2026 earnings: Total revenue $1.8B (+32% YoY), cloud $1.1B+ (+29%), RPO $4B (+37%), NRR >120% improving</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-04-30</td>
+          <td style="font-size:12px;padding:6px 5px">Service Collection ARR surpassed $1B milestone, largest-ever quarter for ITSM competitive displacements</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-04-30</td>
+          <td style="font-size:12px;padding:6px 5px">CFO flagged $50M data center upfront license pull-forward, expects muted DC expansion going forward</td>
+          <td class="ev-sig" style="color:#A32D2D">🔴 négatif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-02-05</td>
+          <td style="font-size:12px;padding:6px 5px">Q2 FY2026: First $1B cloud revenue quarter (+26%), RPO $3.8B (+44%), ARR >$6B, Teamwork Collection >1M seats in <9 months</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-05-01</td>
+          <td style="font-size:12px;padding:6px 5px">Team 26 conference upcoming with 'huge announcements' on Teamwork Graph and AI capabilities</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-04-23</td>
+          <td style="font-size:12px;padding:6px 5px">New CFO James Chuong awarded 297,030 RSU shares, signaling long-term commitment</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr></tbody></table>
+
+      <div class="hlbox" style="background:#E1F5EE;border-color:#5DCAA5;margin-top:10px">
+        <div class="hlbox-title" style="color:#0F6E56">Signal dominant — Verbatim extrait des transcripts</div>
+        <div class="hlbox-body">"Customers using Rovo are also growing their ARR at roughly two times the rate of customers who are not using Rovo" — This verbatim is the single most powerful signal in both transcripts. It documents a measurable, causal link between AI adoption and revenue acceleration. A 2x ARR growth differential is not a vague promise—it is a quantified flywheel effect proving that Rovo AI drives expansion revenue. Combined with 20%+ MoM credit usage growth and Teamwork Collection upgrades, this creates a self-reinforcing cycle: more AI usage → higher ARR → more investment in AI features → more usage. This is the core thesis for Atlassian as an AI-native compounder.</div>
+      </div>
+
+      <div class="lbl">Métriques clés</div>
+      <div class="kpi-grid">
+      <div class="kpi-cell">
+        <div class="kpi-label">Total Revenue Q3</div>
+        <div class="kpi-val" style="color:#3B6D11">$1.8B (+32% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Cloud Revenue Q3</div>
+        <div class="kpi-val" style="color:#3B6D11">$1.1B+ (+29% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">RPO</div>
+        <div class="kpi-val" style="color:#3B6D11">$4.0B (+37% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">NRR</div>
+        <div class="kpi-val" style="color:#3B6D11">>120% (improving)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Rovo Credit Usage Growth</div>
+        <div class="kpi-val" style="color:#3B6D11">20%+ MoM</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Service Collection ARR</div>
+        <div class="kpi-val" style="color:#3B6D11">>$1B milestone</div>
+      </div></div>
+
+      <div class="lbl">Risques</div>
+      
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Data center revenue lumpiness: CFO flagged $50M pull-forward in Q3 from pricing changes, expects 'more muted level of data center expansion' as customers prepare cloud migration. Creates FY2027 revenue headwind and recognition noise.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · DC Pull-Forward Risk</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#378ADD"></div>
+        <div class="risk-text">RPO growth decelerated from 44% (Q2) to 37% (Q3). While still robust and on a higher base ($4B), this is the first sequential deceleration after three quarters of acceleration. Needs monitoring.</div>
+        <div class="risk-level" style="color:#378ADD">LOW · RPO Deceleration</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">CFO transition from Joe Binz to James Chuong mid-fiscal year introduces execution uncertainty. New CFO just received 297K RSU award (April 2026). Continuity risk during a critical growth phase.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · CFO Transition</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#378ADD"></div>
+        <div class="risk-text">AI monetization relies on consumption-based credit model still early stage. 20%+ MoM growth is impressive but off a small base. Sustainability of credit economics and margin impact remain unproven at scale.</div>
+        <div class="risk-level" style="color:#378ADD">LOW · AI Credit Monetization</div>
+      </div>
+
+      <div class="lbl">Points positifs</div>
+      <div class="pos-row"><span class="pos-check">✓</span><span>Cloud revenue accelerated from 26% to 29% YoY on a $1B+ quarterly base, reaching $1.1B+, demonstrating enterprise cloud demand strengthening not weakening at scale.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Rovo AI credit usage growing 20%+ MoM with 2x ARR differential for Rovo users vs non-users—quantified AI flywheel effect directly driving expansion revenue.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>NRR sustained above 120% and improving sequentially for 3-4 consecutive quarters, documenting persistent customer expansion and minimal churn.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>RPO at $4B (+37% YoY) provides multi-year revenue visibility with customers signing 'multiyear deals voting on the platform for 2027, 2028, and 2029.'</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Largest-ever competitive ITSM displacement quarter, with 75% Fortune 500 Service Collection adoption and 60% non-IT use case penetration—documenting share gains from legacy providers.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Teamwork Collection surpassed 1M seats in <9 months with double-digit higher seat expansion vs standalone, proving bundled AI-enhanced offerings drive faster land-and-expand.</span></div>
+
+      <div style="margin-top:10px;font-size:13px;color:#333;line-height:1.6">
+        <strong style="font-size:10px;color:#999;text-transform:uppercase;display:block;margin-bottom:4px">
+          Vue analystes</strong>
+        31 analystes ·
+        <strong style="color:#854F0B">BUY</strong> ·
+        Target $144.28 (+62.3% upside)
+      </div>
+
+      <div class="catalyst-box">
+        <strong style="display:block;margin-bottom:4px;font-size:12px;font-weight:700">⚡ Prochains catalyseurs</strong>
+        
+      <strong style="font-size:11px;color:#378ADD">2026-05-01 — Team 26 Annual Conference with 'huge announcements' on Teamwork Graph and AI :</strong>
+      Potential re-rating catalyst if new AI features, partnerships, or enterprise wins are disclosed. Management explicitly flagged major announcements. <br>
+      <strong style="font-size:11px;color:#378ADD">2026-07-2026 — Q4 FY2026 earnings (fiscal year-end June 2026) :</strong>
+      Full-year results will validate 20%+ CAGR target. Data center lumpiness resolution and cloud migration acceleration critical to watch. <br>
+      <strong style="font-size:11px;color:#378ADD">2026-H2 — Investor Forum with historical subscription ARR disclosure :</strong>
+      Management plans to disclose subscription ARR to clarify underlying growth trends, potentially unlocking re-rating by removing data center noise. <br>
+      <strong style="font-size:11px;color:#378ADD">2026-2027 — Data Center end-of-life migration wave :</strong>
+      Accelerating cloud migration from DC customers could drive mid-to-high single-digit cloud revenue contribution and improved unit economics. <br>
+      <strong style="font-size:11px;color:#378ADD">2027 — FY2027 margin expansion to 25%+ non-GAAP operating margin :</strong>
+      Achievement of margin target would demonstrate operating leverage and could trigger significant multiple expansion from current 14.2x Forward PE. <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Score NLP Claude — Q3 2026 + Q2 2026 · ~15,093 mots</span>
+        <span class="section-sub"> · 9 catégories · verbatims réels</span></div>
+      <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #854F0B">85/100</span>
+    </div>
+    <div class="section-body">
+      <div class="nlp-header">
+        <div>
+          <div class="nlp-big" style="color:#854F0B">85<span class="nlp-big-unit">/100</span></div>
+          <div style="font-size:11px;color:#888;margin-top:2px">Pénalités : -5 pts</div>
+        </div>
+        <div class="nlp-meta">
+          <div class="nlp-meta-row">Transcripts : <span class="nlp-meta-val">Q3 2026 + Q2 2026</span></div>
+          <div class="nlp-meta-row">Mots analysés : <span class="nlp-meta-val">~15,093</span></div>
+          <div class="nlp-meta-row">Catégories : <span class="nlp-meta-val" style="color:#854F0B">
+            4/9 au maximum</span></div>
+          <div class="nlp-meta-row">Pénalités : <span class="nlp-meta-val" style="color:#A32D2D">
+            -5 pts</span></div>
+        </div>
+      </div>
+      <div class="nlp-bar-outer">
+        <div class="nlp-bar-inner" style="width:85%;background:linear-gradient(90deg,#854F0B,#854F0B99)"></div>
+      </div>
+      <div class="chips"><span class="chip" style="background:#FAEEDA;color:#854F0B">MUST_BUY 8/9 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">BOTTLENECK 5/6 ⚠</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">QUAL_VOL 6/6 ✓</span><span class="chip" style="background:#FAEEDA;color:#854F0B">CAPEX 4/6 ⚠</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">RECURRING 6/6 ✓</span><span class="chip" style="background:#FAEEDA;color:#854F0B">REPLICATION 5/6 ⚠</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">DEMAND 3/3 ✓</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">NARRATIVE 3/3 ✓</span><span class="chip" style="background:#FAEEDA;color:#854F0B">INFRA 2/3 ⚠</span><a href="#pen-data-center-lumpiness" style="text-decoration:none"><span class="chip" style="background:#FCEBEB;color:#A32D2D;cursor:pointer;border:1px solid #E24B4A;text-decoration:underline dotted">DATA CENTER LUMPINESS -3pts ⚠ 🔗</span></a><a href="#pen-rpo-deceleration" style="text-decoration:none"><span class="chip" style="background:#FCEBEB;color:#A32D2D;cursor:pointer;border:1px solid #E24B4A;text-decoration:underline dotted">RPO DECELERATION -2pts ⚠ 🔗</span></a></div>
+      <div class="lbl" style="margin-top:12px">Détail par catégorie — verbatims extraits par Claude</div>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">MUST_BUY</div>
+        <div class="nlp-wt">×3</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:89%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">8/9 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«the Teamwork Graph connects knowledge, work, people, and code, giving our customers one of the richest enterprise context graphs in the world»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">BOTTLENECK</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:83%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">5/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«This is our largest-ever quarter for competitive displacements from a major ITSM provider»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">QUAL_VOL</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">6/6 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«Cloud revenue surpassed $1.1 billion and accelerated to 29% growth year over year»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">CAPEX</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">4/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«Ongoing investment in R&D and engineering efficiency has enabled expansion at scale without raising platform operating costs»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">RECURRING</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">6/6 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«RPO grew 37% year over year to $4 billion... NRR maintained north of 120%, even ticked up again for the third or fourth quarter in a row»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">REPLICATION</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:83%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">5/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«60% employ it outside of IT functions... significant seat growth reported in HR, finance, and other business teams»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">DEMAND</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">3/3 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«record number of deals greater than $1 million ACV in Q2, nearly doubling year over year again»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">NARRATIVE</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">3/3 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«We surpassed $6 billion in annual run rate revenue, delivered our first-ever $1 billion cloud revenue quarter»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">INFRA</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">2/3 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«25%+ non-GAAP operating margin for fiscal 2027... expansion at scale without raising platform operating costs»</em></span>
+      
+      
+      <div class="neg-box">
+        <div style="font-size:10px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:4px">
+          Pénalités documentées — -5 pts au total</div>
+        
+          <div class="neg-row" id="pen-data-center-lumpiness" style="border-left:3px solid #E24B4A;padding-left:6px;scroll-margin-top:80px">
+            <div class="neg-cat">DATA CENTER LUMPINESS</div>
+            <div style="flex:1;font-size:12px;color:#555">CFO warned of 'lumpiness in that pull-forward effect in data center' and 'we now expect a more muted level of data center expansion from these customers going forward as they prepare to move to cloud.' $50M pull-forward creates FY2027 headwind.</div>
+            <div class="neg-score">-3 pts</div>
+          </div>
+          <div class="neg-row" id="pen-rpo-deceleration" style="border-left:3px solid #E24B4A;padding-left:6px;scroll-margin-top:80px">
+            <div class="neg-cat">RPO DECELERATION</div>
+            <div style="flex:1;font-size:12px;color:#555">RPO growth decelerated from 44% YoY in Q2 to 37% YoY in Q3. While still strong, this is a sequential deceleration on a key forward-looking metric.</div>
+            <div class="neg-score">-2 pts</div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">GuruFocus — GF Score · GF Value · Warning Signs</span></div>
+      <span class="badge" style="background:#e8e0ff;color:#6633cc;border:1px solid #9966ff">GF Score 68/100</span>
+    </div>
+    <div class="section-body">
+      <div class="gf-box">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:12px">
+          <div>
+            <div class="gf-score-big">68<span style="font-size:20px;color:#aaa">/100</span></div>
+            <div style="font-size:11px;color:#5DCAA5;margin-top:3px">GF Score™ — Moderate</div>
+          </div>
+          <div style="flex:1;border-left:1.5px solid #2a2a4a;padding-left:14px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">GF Value : $287.16</div>
+            <div style="font-size:12px;color:#aaa">Significantly Undervalued —
+              <span style="color:#0F6E56;font-weight:700">-69.0% vs GF Value</span></div>
+          </div>
+        </div>
+        <div class="gf-row"><span class="gf-label">GF Score</span><span class="gf-val" style="color:#EF9F27">68/100</span></div><div class="gf-row"><span class="gf-label">GF Value</span><span class="gf-val" style="color:#5DCAA5">$287.16</span></div><div class="gf-row"><span class="gf-label">Price vs GF Value</span><span class="gf-val" style="color:#5DCAA5">-69.0%</span></div><div class="gf-row"><span class="gf-label">Forward PE</span><span class="gf-val" style="color:#5DCAA5">14.2x</span></div><div class="gf-row"><span class="gf-label">Market Cap</span><span class="gf-val" style="color:#EF9F27">~$23.4B</span></div>
+        <div class="gf-row"><span class="gf-label">Warning signs</span>
+          <span class="gf-val" style="color:#EF9F27">2 au total</span></div>
+      </div>
+      <div class="warn-box">
+        <div style="font-size:10px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:6px">
+          ⚠ Warning Signs GuruFocus</div>
+        
+        <div class="warn-item">
+          <span class="warn-sev" style="background:#EF9F27;color:#fff">MEDIUM</span>
+          <span>GF Score 68/100 reflects moderate quality rating (60-74 range). Atlassian's asset-light SaaS model and heavy stock-based compensation may suppress traditional quality metrics like ROIC and book value ratios.</span>
+        </div>
+        <div class="warn-item">
+          <span class="warn-sev" style="background:#5DCAA5;color:#222">INFO</span>
+          <span>GF Value $287.16 implies 69% upside from current price of $88.88. This extreme undervaluation signal assumes reversion to historical growth multiples, which may require sustained 25%+ revenue growth.</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:9px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5;font-size:12px;color:#444;line-height:1.7">
+        <strong style="color:#0F6E56;font-size:11px">Lecture GuruFocus (analyse Claude)</strong><br>
+        The GF Score of 68/100 is moderate and reflects GuruFocus's quantitative framework penalizing Atlassian's high SBC burden, negative tangible equity, and historically elevated valuation multiples. However, the GF Value of $287.16 implying 69% discount is a striking signal—this typically occurs when a high-growth compounder trades at a fraction of its historical valuation range. At a Forward PE of 14.2x on a company growing revenue 32% YoY with cloud accelerating and NRR >120%, the quantitative setup suggests significant dislocation between current price and intrinsic value. The moderate GF Score should be contextualized: asset-light SaaS models often score poorly on traditional balance sheet metrics while generating substantial economic value through recurring revenue and customer lock-in.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Phase Weinstein — Analyse précise MA30 semaine</span>
+        <span class="section-sub"> · 157 semaines · MA30W calculée en pandas</span></div>
+      <span class="badge" style="background:#FCEBEB;color:#A32D2D;border:1px solid #A32D2D">
+        Phase 3 — avancé</span>
+    </div>
+    <div class="section-body">
+      <div class="wein-box">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:12px">
+          <div>
+            <div style="font-size:36px;font-weight:700;line-height:1;color:#A32D2D">Phase 3</div>
+            <div style="font-size:18px;font-weight:600;color:#5DCAA5">Avancé</div>
+            <div style="font-size:11px;color:#aaa;margin-top:4px">Phase 3 avancée. Sortie recommandée. Attendre Phase 1 suivante.</div>
+          </div>
+          <div style="flex:1;border-left:1.5px solid #2a2a4a;padding-left:14px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">
+              $88.88 vs MA30W $117.66</div>
+            <div style="font-size:12px;color:#aaa">Écart :
+              <span style="color:#E24B4A;font-weight:700">
+                -24.5%</span></div>
+          </div>
+        </div>
+        <div class="wein-grid">
+          <div class="wein-cell"><div class="wein-clabel">Prix actuel</div>
+            <div class="wein-cval" style="color:#5DCAA5">$88.88</div></div>
+          <div class="wein-cell"><div class="wein-clabel">MA30W</div>
+            <div class="wein-cval" style="color:#EF9F27">$117.66</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Direction MA30W</div>
+            <div class="wein-cval" style="color:#E24B4A">Descendante ↓</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Volume</div>
+            <div class="wein-cval" style="color:#aaa">Increasing</div></div>
+          <div class="wein-cell"><div class="wein-clabel">ATH 52S</div>
+            <div class="wein-cval" style="color:#aaa">$220.79 (-59.7%)</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Beta</div>
+            <div class="wein-cval" style="color:#aaa">None</div></div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#333;line-height:1.75;padding:10px 12px;background:#fafafa;
+                  border-radius:8px;border-left:3px solid #A32D2D">
+        <strong style="font-size:11px;font-weight:700;color:#A32D2D;text-transform:uppercase;
+                        display:block;margin-bottom:6px">Analyse Weinstein (rédigée par Claude)</strong>
+        TEAM presents a textbook Phase 3 advanced to early Phase 4 Weinstein profile, with important nuances requiring careful chronological analysis. From 2023 through early 2025, the stock was in a clear Phase 2 advance, rallying from the $120-140 range to a 52-week high of $232.36, well above a rising MA30W. The Phase 2 uptrend was powered by cloud migration momentum and early AI enthusiasm. The transition to Phase 3 likely began in mid-2025 when the stock first crossed below the MA30W and the moving average began flattening. By late 2025, the MA30W started declining as the price collapsed from $220+ to the $80-90 range, a brutal 60%+ drawdown. Currently at $88.88, the stock sits 24.5% below the MA30W ($117.66), which is descending with a steep negative slope of -6.83% per 4 weeks. Volume is increasing during this decline—a classic distribution/capitulation signature. The 52-week range of $56.01-$232.36 confirms extreme volatility. The stock has bounced 55.5% off the $57.15 low, suggesting a potential basing attempt, but remains firmly below the declining MA30W. For a Phase 1 base to form, we would need: (1) MA30W to flatten (currently still declining steeply), (2) price to consolidate near current levels for several months, (3) volume to normalize. The calculated stop at $111.78 (near MA30W) serves as the overhead resistance level. A sustained close above $117.66 (MA30W) on rising volume would be the first signal of Phase 1 transition. Until then, the technical profile remains bearish. Key level to watch: $57 support (52-week low) on the downside, $117-120 zone (MA30W convergence) on the upside. The fundamental-technical divergence is extreme—32% revenue growth with the stock 60% off highs creates potential asymmetry but requires patience for technical confirmation.
+        <br><br>
+        <strong style="font-size:11px;color:#185FA5">Stop :</strong> Phase défavorable — pas de position recommandée
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Form 4 — Insiders · SEC EDGAR</span>
+        <span class="section-sub"> · 10 filings parsés</span></div>
+      <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #EF9F27">
+        CIK 0001650372</span>
+    </div>
+    <div class="section-body">
+      
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">AWARD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">DUFFY BRIAN — Chief Revenue Officer</div>
+            <div style="font-size:11px;color:#555">121,512 actions @ $0.00
+              = $0.00M · 2026-04-23</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">AWARD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">CHUONG JAMES — Chief Financial Officer</div>
+            <div style="font-size:11px;color:#555">297,030 actions @ $0.00
+              = $0.00M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">LIU GENE — Chief Accounting Officer</div>
+            <div style="font-size:11px;color:#555">28 actions @ $80.57
+              = $0.00M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">LIU GENE — Chief Accounting Officer</div>
+            <div style="font-size:11px;color:#555">8 actions @ $82.60
+              = $0.00M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">LIU GENE — Chief Accounting Officer</div>
+            <div style="font-size:11px;color:#555">28 actions @ $81.63
+              = $0.00M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">LIU GENE — Chief Accounting Officer</div>
+            <div style="font-size:11px;color:#555">2 actions @ $83.55
+              = $0.00M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">DUFFY BRIAN — Chief Revenue Officer</div>
+            <div style="font-size:11px;color:#555">151 actions @ $82.60
+              = $0.01M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">DUFFY BRIAN — Chief Revenue Officer</div>
+            <div style="font-size:11px;color:#555">525 actions @ $81.63
+              = $0.04M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">DUFFY BRIAN — Chief Revenue Officer</div>
+            <div style="font-size:11px;color:#555">30 actions @ $83.55
+              = $0.00M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">DUFFY BRIAN — Chief Revenue Officer</div>
+            <div style="font-size:11px;color:#555">516 actions @ $80.57
+              = $0.04M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">RAJAN RAJEEV BASHYAM — Chief Technology Officer</div>
+            <div style="font-size:11px;color:#555">1,297 actions @ $80.57
+              = $0.10M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">RAJAN RAJEEV BASHYAM — Chief Technology Officer</div>
+            <div style="font-size:11px;color:#555">379 actions @ $82.60
+              = $0.03M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">RAJAN RAJEEV BASHYAM — Chief Technology Officer</div>
+            <div style="font-size:11px;color:#555">1,321 actions @ $81.63
+              = $0.11M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">RAJAN RAJEEV BASHYAM — Chief Technology Officer</div>
+            <div style="font-size:11px;color:#555">75 actions @ $83.55
+              = $0.01M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">BINZ JOSEPH LEO — Chief Financial Officer</div>
+            <div style="font-size:11px;color:#555">204 actions @ $82.60
+              = $0.02M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">BINZ JOSEPH LEO — Chief Financial Officer</div>
+            <div style="font-size:11px;color:#555">711 actions @ $81.63
+              = $0.06M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">BINZ JOSEPH LEO — Chief Financial Officer</div>
+            <div style="font-size:11px;color:#555">40 actions @ $83.55
+              = $0.00M · 2026-02-19</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">BINZ JOSEPH LEO — Chief Financial Officer</div>
+            <div style="font-size:11px;color:#555">698 actions @ $80.57
+              = $0.06M · 2026-02-19</div>
+          </div>
+        </div>
+      <div style="margin-top:10px;padding:8px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5;font-size:12px;color:#444;line-height:1.6">
+        <strong style="color:#0F6E56;font-size:11px">Analyse Claude des Form 4</strong><br>
+        Form 4 filings show a pattern consistent with routine RSU vesting and tax-related dispositions rather than conviction-based insider selling. The February 2026 sales across Liu (CAO), Duffy (CRO), Rajan (CTO), and Binz (outgoing CFO) are uniformly small—ranging from 2 to 1,321 shares at $80-$87, totaling under $500K combined across all insiders. These are fractional dispositions typical of automated tax withholding on RSU vests. Crucially, April 2026 shows large RSU awards: Duffy received 121,512 shares and new CFO James Chuong received 297,030 shares—both compensation grants signaling long-term alignment. No large open-market insider purchases were observed, but the absence of material voluntary selling despite the stock's 60%+ decline from ATH is mildly constructive. Net signal: neutral to mildly positive given RSU-heavy compensation structure.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Flux 13F + Validation croisée</span>
+        <span class="section-sub"> · institutionnels · sell-side · données marché</span></div>
+      <span class="inst-pill" style="background:#E1F5EE;color:#0F6E56;border:1px solid #5DCAA5">
+        ▲ BUY consensus</span>
+    </div>
+    <div class="section-body">
+      <div class="valid-grid">
+        
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">NLP Score</div>
+          <div class="valid-val" style="color:#0F6E56">85/100</div>
+          <div class="valid-sub" style="color:#0F6E56">Premium compounder transcript</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Analyst Consensus</div>
+          <div class="valid-val" style="color:#0F6E56">BUY (31)</div>
+          <div class="valid-sub" style="color:#0F6E56">Target $144.28 (+62%)</div>
+        </div>
+        <div class="valid-cell" style="background:#FAEEDA;border-color:#EF9F27">
+          <div class="valid-label" style="color:#854F0B">FCF/Dividend</div>
+          <div class="valid-val" style="color:#854F0B">No div, FCF positive</div>
+          <div class="valid-sub" style="color:#854F0B">25%+ margin target FY27</div>
+        </div>
+        <div class="valid-cell" style="background:#FCEBEB;border-color:#E24B4A">
+          <div class="valid-label" style="color:#A32D2D">Phase Weinstein</div>
+          <div class="valid-val" style="color:#A32D2D">Phase 3 avancée</div>
+          <div class="valid-sub" style="color:#A32D2D">MA30W $117.66 declining</div>
+        </div>
+      </div>
+      <div class="lbl">13F institutionnels + sell-side</div>
+      <table class="fund-table">
+        <thead><tr>
+          <th>Fonds / Acteur</th><th>Type</th>
+          <th style="text-align:right">Signal</th>
+          <th style="text-align:right">Verdict</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="fn">Vanguard Group</span>
+              <span class="ft">~8-9% ownership estimated</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#854F0B;font-weight:700">Index rebalancing, likely steady or slightly reduced on drawdown</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">→</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">BlackRock</span>
+              <span class="ft">~7-8% ownership estimated</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#854F0B;font-weight:700">Passive index allocation, mechanical flows</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">→</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">T. Rowe Price</span>
+              <span class="ft">Major active holder ~5%</span></td>
+            <td style="font-size:11px;color:#888">Actif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Growth fund conviction position, likely holding through drawdown</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Guggenheim</span>
+              <span class="ft">Buy, Target $975 (May 2026)</span></td>
+            <td style="font-size:11px;color:#888">Sell-side</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Extremely bullish outlier target implies 10x+ upside vision; likely long-term DCF model</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Piper Sandler</span>
+              <span class="ft">Overweight, Target $222 (May 2026)</span></td>
+            <td style="font-size:11px;color:#888">Sell-side</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">150% upside target, recent reiteration post-Q3 results</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">BTIG</span>
+              <span class="ft">Buy, Target $120 (May 2026)</span></td>
+            <td style="font-size:11px;color:#888">Sell-side</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Conservative near-term target, 35% upside, aligns with MA30W resistance</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">JP Morgan</span>
+              <span class="ft">Overweight, Target $445 (May 2026)</span></td>
+            <td style="font-size:11px;color:#888">Sell-side</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Major bulge bracket conviction with 5x upside target, strong institutional signal</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Brian Duffy (CRO)</span>
+              <span class="ft">RSU award 121,512 shares Apr 2026</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Large RSU grant + only micro tax-related sales in Feb; aligned with shareholders</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">James Chuong (New CFO)</span>
+              <span class="ft">RSU award 297,030 shares Apr 2026</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Massive initial equity grant signals long-term commitment to role and company</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr></tbody>
+      </table>
+      <div style="margin-top:10px;font-size:12px;color:#444;line-height:1.7;
+                  padding:9px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5">
+        <strong style="color:#0F6E56;font-size:11px">Synthèse institutionnelle (Claude)</strong><br>
+        Institutional positioning is constructive with unanimous sell-side Buy ratings across 31 analysts and target prices ranging from $120 to $975. The wide target dispersion reflects uncertainty about the pace of AI monetization and multiple re-rating timeline. Passive funds hold ~15-17% combined and are mechanical. Active growth funds like T. Rowe Price likely maintain conviction given accelerating cloud metrics. Insider activity is net neutral—micro tax-sales only, offset by large RSU awards to CRO and new CFO. The institutional setup supports a recovery thesis but timing depends on technical confirmation.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-bottom:14px">
+    <div class="section-hdr">
+      <div><span class="section-title">Verdict Final — Go V3</span></div>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;color:#854F0B;background:#854F0B15;
+                     padding:3px 9px;border-radius:10px">
+          Phase 3 avancé · +62.3% upside</span>
+        <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #854F0B">
+          Score 85/100 · Conviction 7/10 — Healthy</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="comment-box" style="border-left-color:#854F0B">
+        <strong>Score NLP 85/100 · Conviction 7/10 — Healthy</strong>
+        Atlassian scores 85/100 on NLP transcript analysis, reflecting one of the strongest SaaS fundamental narratives currently available. The 32% revenue growth, cloud acceleration (26%→29%), NRR >120% improving, $4B RPO, and documented AI flywheel (2x ARR differential for Rovo users) place this firmly in premium compounder territory. The transcript quality rivals top-tier growth stories with multiple quantified proof points and milestone achievements. However, the stock trades in Phase 3/early Phase 4 Weinstein—24.5% below a declining MA30W with increasing volume on the downside. This creates a profound fundamental-technical divergence. At $88.88 with a Forward PE of 14.2x and GF Value of $287.16 (-69% discount), the market is pricing in either a dramatic growth deceleration or a prolonged multiple compression that the transcripts do not support. The 31 analysts averaging $144.28 target (+62.3% upside) align with the fundamental thesis. The risk is timing: the data center pull-forward ($50M), CFO transition, and RPO deceleration provide bears ammunition for near-term pressure. For value-oriented investors with 12-18 month horizons, the asymmetry is compelling. For momentum investors, the technical setup demands patience—wait for MA30W to flatten and price to reclaim $117+.
+
+        <strong>Weinstein</strong>
+        Phase 3 (avancé) · MA30W $117.66 ·
+        Prix -24.5% vs MA30W ·
+        Phase 3 avancée. Sortie recommandée. Attendre Phase 1 suivante.
+
+        <strong>Gestion de position</strong>
+        Given the Phase 3/4 technical profile conflicting with strong fundamentals, position sizing should be conservative with a staged entry approach. Initial position: 25-30% of target allocation at current $88-90 level. Add 25% if stock holds above $75 support on any retest. Add remaining 50% only on a weekly close above the MA30W ($117.66) with expanding volume, confirming Phase 1/2 transition. Monthly stop: $56 (52-week low area)—a break below invalidates the basing thesis. Short-term target: $117-120 (MA30W retest). Medium-term target: $145-155 (analyst consensus zone). Long-term target: $200+ if growth trajectory sustains. Do not leverage; this is a high-volatility recovery play requiring patience.
+
+        <strong>Analysts</strong>
+        31 analysts BUY · target $144.28
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Sources : Motley Fool — Q3 2026 (2026-04-30) · Q2 2026 (2026-02-05)<br>
+  EDGAR : CIK 0001650372 · 8 8-K · 10 Form 4<br>
+  GuruFocus : GF Score 68/100 · GF Value $$287.16 (Significantly Undervalued)<br>
+  Prix : $88.88 · 52S 56.01–232.36 ·
+  Cap ~$23B · 31 analysts BUY<br>
+  SEC Screener Pro Go V3 · Analyse Claude claude-opus-4-6 · 02 May 2026
+</div>
+</div>
+</body>
+</html>

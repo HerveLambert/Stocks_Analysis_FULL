@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SEC Screener Pro — ALGN · Go V3</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;background:#f0f2f5;color:#222;padding:14px 10px 40px;line-height:1.5;font-size:14px}
+.wrap{max-width:700px;margin:0 auto}
+.hdr{background:#1a1a2e;border-radius:12px;padding:16px 18px;color:#fff;margin-bottom:14px}
+.hdr h1{font-size:20px;font-weight:600}
+.hdr p{font-size:12px;color:#aaa;margin-top:4px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.hbadge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.method-box{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 13px;margin-bottom:13px}
+.method-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0;font-size:12px}
+.verdict-banner{border-radius:10px;padding:14px 16px;margin-bottom:13px;display:flex;align-items:center;gap:14px}
+.vb-right{flex:1}
+.vb-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.vb-sub{font-size:12px;line-height:1.6}
+.tcard{background:#fff;border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.tcard-hdr{background:#1a1a2e;padding:13px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start}
+.tcard-ticker{font-size:24px;font-weight:700}
+.tcard-co{font-size:11px;color:#bbb;margin-top:2px}
+.price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 13px 0}
+@media(min-width:480px){.price-grid{grid-template-columns:repeat(4,1fr)}}
+.price-cell{background:#f5f5f5;border-radius:8px;padding:8px 10px}
+.pc-label{font-size:10px;color:#888}
+.pc-val{font-size:16px;font-weight:700;margin-top:2px}
+.section{margin:11px 13px;border:0.5px solid #e8e8e8;border-radius:10px;overflow:hidden}
+.section-hdr{background:#f8f8f8;border-bottom:0.5px solid #eee;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.section-title{font-size:13px;font-weight:700;color:#111}
+.section-sub{font-size:10px;color:#aaa}
+.section-body{padding:11px 12px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:600}
+.conv-wrap{display:flex;align-items:center;gap:8px}
+.conv-track{width:80px;height:5px;background:#555;border-radius:3px}
+.conv-fill{height:5px;border-radius:3px}
+.conv-label{font-size:11px;font-weight:700}
+.lbl{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;margin-top:12px}
+.lbl:first-child{margin-top:0}
+.sumtext{font-size:13px;color:#444;font-style:italic;line-height:1.65;padding:9px 11px;background:#fafafa;border-radius:7px;margin-bottom:10px}
+.evtable{width:100%;border-collapse:collapse}
+.evtable td{padding:6px 5px;font-size:12px;border-bottom:0.5px solid #f5f5f5;vertical-align:top}
+.evtable tr:last-child td{border-bottom:none}
+.ev-date{color:#888;white-space:nowrap;min-width:72px}
+.ev-sig{text-align:right;white-space:nowrap;font-size:11px;font-weight:700;min-width:58px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+@media(min-width:480px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+.kpi-cell{background:#f5f5f5;border-radius:7px;padding:7px 9px}
+.kpi-label{font-size:10px;color:#888}
+.kpi-val{font-size:14px;font-weight:700;margin-top:2px}
+.hlbox{border-radius:8px;padding:9px 11px;margin-bottom:10px;border:0.5px solid}
+.hlbox-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.hlbox-body{font-size:12px;line-height:1.6}
+.hlbox-sub{font-size:11px;color:#666;font-style:italic;margin-top:3px}
+.risk-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f5f5f5}
+.risk-row:last-child{border-bottom:none}
+.risk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.risk-text{flex:1;font-size:12px;line-height:1.5}
+.risk-level{font-size:11px;font-weight:700;white-space:nowrap}
+.pos-row{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12px;line-height:1.5}
+.pos-check{color:#3B6D11;font-size:15px;flex-shrink:0}
+.nlp-header{display:flex;align-items:flex-end;gap:14px;margin-bottom:10px}
+.nlp-big{font-size:52px;font-weight:700;line-height:1}
+.nlp-big-unit{font-size:18px;color:#aaa;font-weight:400}
+.nlp-meta{flex:1;border-left:2px solid #eee;padding-left:12px}
+.nlp-meta-row{font-size:12px;color:#555;padding:2px 0}
+.nlp-meta-val{font-weight:700;color:#222}
+.nlp-bar-outer{height:8px;background:#eee;border-radius:4px;margin:7px 0 13px}
+.nlp-bar-inner{height:8px;border-radius:4px}
+.nlp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid #f8f8f8}
+.nlp-row:last-child{border-bottom:none}
+.nlp-cat{min-width:140px;font-size:12px;color:#333;font-weight:500}
+.nlp-wt{font-size:10px;color:#aaa;min-width:24px}
+.nlp-track{flex:1;height:5px;background:#f0f0f0;border-radius:3px}
+.nlp-fill{height:5px;border-radius:3px}
+.nlp-score{font-size:11px;font-weight:700;min-width:48px;text-align:right}
+.nlp-excerpt{font-size:11px;color:#555;font-style:italic;margin-top:2px;padding-left:164px;display:block;line-height:1.5}
+.neg-box{margin-top:10px;padding:8px 11px;background:#FCEBEB;border-radius:7px;border-left:3px solid #E24B4A}
+.neg-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px}
+.neg-cat{min-width:130px;color:#A32D2D;font-weight:600}
+.neg-score{color:#A32D2D;font-weight:700;min-width:44px;text-align:right}
+.valid-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.valid-cell{border-radius:8px;padding:8px 10px;border:0.5px solid}
+.valid-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px}
+.valid-val{font-size:13px;font-weight:700}
+.valid-sub{font-size:11px;margin-top:2px;opacity:0.8}
+.inst-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.fund-table{width:100%;border-collapse:collapse;font-size:12px}
+.fund-table th{padding:5px 7px;text-align:left;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;border-bottom:1px solid #eee;background:#fafafa}
+.fund-table td{padding:6px 7px;border-bottom:0.5px solid #f5f5f5;vertical-align:middle}
+.fund-table tr:last-child td{border-bottom:none}
+.fn{font-weight:600;color:#222}
+.ft{font-size:10px;color:#888;font-weight:400;display:block}
+.du{color:#3B6D11;font-weight:700}
+.dd{color:#A32D2D;font-weight:700}
+.dn{color:#854F0B;font-weight:700}
+.comment-box{font-size:13px;color:#222;line-height:1.75;padding:11px 13px;border-radius:8px;border-left:4px solid;background:#f9f9f9}
+.comment-box strong{display:block;font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-top:9px;margin-bottom:2px}
+.comment-box strong:first-child{margin-top:0}
+.catalyst-box{font-size:13px;line-height:1.65;padding:9px 12px;background:#f0f7ff;border-radius:8px;border-left:4px solid #378ADD;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.footer{font-size:11px;color:#bbb;text-align:center;padding-top:11px;border-top:0.5px solid #e0e0e0;margin-top:8px;line-height:1.6}
+.accel-box{background:#f0f9f4;border:0.5px solid #5DCAA5;border-radius:8px;padding:9px 11px;margin-bottom:10px}
+.gf-box{background:#1a1a2e;border-radius:10px;padding:12px 14px;color:#fff;margin-bottom:10px}
+.gf-score-big{font-size:44px;font-weight:700;color:#5DCAA5;line-height:1}
+.gf-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #2a2a4a;font-size:12px}
+.gf-row:last-child{border-bottom:none}
+.gf-label{color:#aaa}
+.gf-val{font-weight:700}
+.warn-box{background:#FCEBEB;border-radius:8px;padding:8px 11px;border-left:3px solid #E24B4A;margin-top:8px}
+.warn-item{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12px}
+.warn-sev{font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;margin-top:1px}
+.wein-box{background:#1a1a2e;border-radius:10px;padding:12px 14px;color:#fff;margin-bottom:10px}
+.wein-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.wein-cell{background:#2a2a4a;border-radius:7px;padding:7px 10px}
+.wein-clabel{font-size:10px;color:#aaa}
+.wein-cval{font-size:13px;font-weight:700;margin-top:2px}
+.f4-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f5f5f5;font-size:12px}
+.f4-row:last-child{border-bottom:none}
+.f4-type{padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap}
+.conv-score-box{display:flex;align-items:center;gap:16px;padding:12px 14px;border-radius:10px;margin-bottom:10px}
+.conv-score-num{font-size:56px;font-weight:700;line-height:1}
+.conv-score-right{flex:1}
+.conv-score-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.conv-score-sub{font-size:12px;line-height:1.6}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <h1>SEC Screener Pro — Go V3 · Rigueur Maximale</h1>
+  <p>ALGN · Align Technology, Inc. &nbsp;·&nbsp;
+     Transcripts complets · NLP Claude · Form 4 · GuruFocus · Weinstein · 30 April 2026</p>
+  <div class="badges">
+    <span class="hbadge" style="background:#0F6E5630;color:#5DCAA5">SEC / EDGAR</span>
+    <span class="hbadge" style="background:#185FA530;color:#85B7EB">NLP Claude réel</span>
+    <span class="hbadge" style="background:#85400B30;color:#EF9F27">Weinstein Précis</span>
+    <span class="hbadge" style="background:#53400030;color:#FAC775">Form 4 Insiders</span>
+    <span class="hbadge" style="background:#3B6D1130;color:#7AC943">Score NLP 62/100</span>
+    <span class="hbadge" style="background:#4a003030;color:#e06faa">GuruFocus</span>
+  </div>
+</div>
+
+<div class="method-box">
+  <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px">🔬 Méthodologie Go V3 — Standard complet respecté</div>
+  <div class="method-row"><span>📄</span><span><strong>Passe 1 — Transcripts :</strong>
+    Fetch + lecture intégrale Motley Fool — Q1 2026 + Q4 2025. ~22,508 mots analysés par Claude.</span></div>
+  <div class="method-row"><span>🏛</span><span><strong>Passe 2 — SEC/EDGAR :</strong>
+    8 filings 8-K · 10 Form 4 insiders parsés · CIK 0001097149.</span></div>
+  <div class="method-row"><span>📊</span><span><strong>Passe 3 — GuruFocus + Marché :</strong>
+    GF Score, GF Value, warning signs · Prix $172.50 ·
+    52S $122.00–$208.31 ·
+    Cap ~$12B.</span></div>
+  <div class="method-row"><span>📈</span><span><strong>Passe 4 — Weinstein :</strong>
+    Historique hebdomadaire · MA30W calculée en pandas · Phase détectée automatiquement.</span></div>
+  <div class="method-row"><span>🤖</span><span><strong>Passe 5 — Analyse Claude :</strong>
+    Envoi des ~22,508 mots à l'API Claude · NLP 9 catégories · verbatims réels ·
+    score /100 · conviction /10 · rédaction complète.</span></div>
+</div>
+
+<div class="verdict-banner" style="background:#E8F0FB;border:1.5px solid #185FA5">
+  <div>
+    <div class="nlp-big" style="color:#185FA5">62<span class="nlp-big-unit">/100</span></div>
+    <div style="font-size:13px;color:#185FA5;font-weight:700">Score NLP Claude</div>
+  </div>
+  <div class="vb-right">
+    <div class="vb-title" style="color:#185FA5">ALGN · Phase 2 début · +19.9% upside</div>
+    <div class="vb-sub" style="color:#444">Align Technology délivre un Q1 2026 solide avec des volumes records d'aligneurs (686K, +6.7% YoY) et un CA de $1.04B (+6.2% YoY). La croissance est portée par l'international (EMEA, APAC, LatAm en double-digit) tandis que le retail nord-américain reste en softness. Le non-GAAP EPS progresse de 21% YoY à $2.58 grâce à l'expansion des marges. Le programme DSP et les DSOs sont des catalyseurs de croissance récurrente. La guidance 2026 est réaffirmée (3-4% revenue growth) sans relèvement malgré le beat. GF Value à $250.94 suggère un upside significatif. Le profil est celui d'un leader digital orthodontique avec un TAM massif sous-pénétré, tempéré par une croissance mid-single digit et des risques macro sur le consommateur américain. Score NLP 62/100 reflète un dossier de qualité avec croissance modérée.</div>
+  </div>
+</div>
+
+<div class="conv-score-box" style="background:#1a1a2e;border:1.5px solid #5DCAA5">
+  <div>
+    <div class="conv-score-num" style="color:#5DCAA5">6<span style="font-size:24px;color:#aaa">/10</span></div>
+    <div style="font-size:11px;color:#5DCAA5;font-weight:700;margin-top:4px">Score Conviction</div>
+  </div>
+  <div class="conv-score-right">
+    <div class="conv-score-title" style="color:#fff">✅ Healthy</div>
+    <div class="conv-score-sub" style="color:#aaa">Align Technology délivre un Q1 2026 solide avec des volumes records d'aligneurs (686K, +6.7% YoY) et un CA de $1.04B (+6.2% YoY). La croissance est portée par l'international (EMEA, APAC, LatAm en dou</div>
+  </div>
+</div>
+
+<div class="tcard" style="border:2px solid #185FA5">
+  <div class="tcard-hdr">
+    <div>
+      <div class="tcard-ticker">ALGN</div>
+      <div class="tcard-co">Align Technology, Inc. · NMS · Cap ~$12B · Healthcare · 20,290 employés</div>
+    </div>
+    <div style="text-align:right"><div style="font-size:10px;color:#666">Q1 2026 : 2026-04-29</div><div style="font-size:10px;color:#666">Q4 2025 : 2026-02-04</div></div>
+  </div>
+  <div class="price-grid">
+    <div class="price-cell"><div class="pc-label">Prix actuel</div>
+      <div class="pc-val">$172.50</div></div>
+    <div class="price-cell"><div class="pc-label">Bas 52S</div>
+      <div class="pc-val" style="color:#888">$122.00</div></div>
+    <div class="price-cell"><div class="pc-label">ATH 52S</div>
+      <div class="pc-val" style="color:#888">$208.31</div></div>
+    <div class="price-cell"><div class="pc-label">vs ATH</div>
+      <div class="pc-val" style="color:#A32D2D">-17.2%</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">SEC Monitor</span>
+        <span class="section-sub"> · Q1 2026 + Q4 2025 · ~22,508 mots lus intégralement par Claude</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div>
+          <div style="font-size:9px;color:#999;margin-bottom:2px">conviction</div>
+          <div class="conv-wrap">
+            <div class="conv-track">
+              <div class="conv-fill" style="width:60%;background:#185FA5"></div>
+            </div>
+            <span class="conv-label" style="color:#185FA5">6/10</span>
+          </div>
+        </div>
+        <span class="badge" style="background:#E1F5EE;color:#0F6E56;border:1px solid #0F6E56">
+          ✓ Healthy
+        </span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="sumtext">L'analyse des transcripts Q4 2025 et Q1 2026 révèle une continuité remarquable dans le discours de Joe Hogan et John Morici. Les thèmes stratégiques sont identiques : leadership DSO ('one of Align's most important and scalable strategic growth channels'), expansion internationale double-digit, montée en puissance du DSP, et innovation produit (ART, IPE, impression 3D directe). Le ton passe de prudemment optimiste en Q4 ('we're helping retail doctors adopt similar business methods') à légèrement plus confiant en Q1 ('better-than-expected quarter', 'record Clear Aligner shipments'). Cependant, un nouveau risque géopolitique apparaît en Q1 avec le Moyen-Orient explicitement intégré dans la guidance Q2. Le segment Systems & Services décroche séquentiellement de $209M à $184M, attribué à la saisonnalité mais méritant surveillance. North America retail reste le point faible récurrent sur les deux trimestres avec des verbatims quasi identiques ('continued softness', 'less patient traffic'). Les marges GAAP s'améliorent (gross margin +1pt YoY à 71%) mais l'operating margin non-GAAP baisse séquentiellement de 26.1% à 22%, partiellement lié aux frais légaux et saisonnalité Q1. Le management maintient une discipline de guidance conservative sans relèvement, signalant une prudence face à l'environnement macro.</div>
+      
+      <div class="accel-box">
+        <div style="font-size:11px;font-weight:700;color:#0F6E56;margin-bottom:6px">
+          📈 Tableau d'accélération Q4 2025 → Q1 2026</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;font-size:11px">
+          <div style="font-weight:700;color:#555;padding:3px 0">Métrique</div>
+          <div style="font-weight:700;color:#185FA5;padding:3px 0;text-align:center">Q4 2025</div>
+          <div style="font-weight:700;color:#0F6E56;padding:3px 0;text-align:center">Q1 2026</div>
+          
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Total Revenue</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$1.048B (+5.3% YoY)</div>
+          <div style="color:#888;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$1.04B (+6.2% YoY) →</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Clear Aligner Revenue</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$838M (+5.5% YoY)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$856M (+7.4% YoY) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Clear Aligner Volume</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">677K cases (+7.7% YoY)</div>
+          <div style="color:#888;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">686K cases (+6.7% YoY) →</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Systems & Services Rev</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$209.4M (+4.2% YoY)</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$184M (+1% YoY) ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">GAAP Gross Margin</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">65.3%</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">71% ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Non-GAAP Op. Margin</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">26.1%</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">22% ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">GAAP EPS</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$1.89</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$1.57 ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Non-GAAP EPS</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$3.29</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$2.58 ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Free Cash Flow</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$187.3M</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$120M ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Doctor Submitters</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">88K (record Q4)</div>
+          <div style="color:#888;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">88K+ (+3% YoY) →</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Clear Aligner ASP</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~$1,238 (implied)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$1,250 (+$10 YoY) ↑</div>
+        </div>
+      </div>
+      <div class="lbl">Events matériels</div>
+      <table class="evtable"><tbody>
+        <tr>
+          <td class="ev-date">2026-04-29</td>
+          <td style="font-size:12px;padding:6px 5px">Q1 2026 earnings beat: revenue $1.04B (+6.2% YoY), record 686K aligner cases, non-GAAP EPS $2.58 (+21% YoY)</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-04-29</td>
+          <td style="font-size:12px;padding:6px 5px">Guidance Q2 2026: $1.04B-$1.06B revenue; FY2026 guidance réaffirmée 3-4% growth, non-GAAP op margin ~24%</td>
+          <td class="ev-sig" style="color:#854F0B">⚠ neutre</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-04-29</td>
+          <td style="font-size:12px;padding:6px 5px">Nouveau programme de rachat $200M annoncé à partir du 1er mai 2026, $800M encore autorisés</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-02-04</td>
+          <td style="font-size:12px;padding:6px 5px">Q4 2025 record: revenue $1.048B, 677K cases, non-GAAP op margin 26.1% (highest since 2021)</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-02-04</td>
+          <td style="font-size:12px;padding:6px 5px">Direct 3D-printed retainers/attachments limited market release planifié 2026, margin dilutive initialement</td>
+          <td class="ev-sig" style="color:#854F0B">⚠ neutre</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2025-08-01</td>
+          <td style="font-size:12px;padding:6px 5px">CEO Hogan achète 7,576 actions à $131.49 pour $1M - achat open-market significatif</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-02-18</td>
+          <td style="font-size:12px;padding:6px 5px">CFO Morici vend 7,969 actions à $189.31 pour $1.51M après exercise RSU</td>
+          <td class="ev-sig" style="color:#A32D2D">🔴 négatif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-Q1</td>
+          <td style="font-size:12px;padding:6px 5px">Lancement du pilote US Invisalign ART (restorative treatment) intégrant exocad - nouveau TAM</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr></tbody></table>
+
+      <div class="hlbox" style="background:#E1F5EE;border-color:#5DCAA5;margin-top:10px">
+        <div class="hlbox-title" style="color:#0F6E56">Signal dominant — Verbatim extrait des transcripts</div>
+        <div class="hlbox-body">"Align has proven its leadership as the world's most sophisticated treatment planning and 3D printing manufacturing operation. Our ability to scale and meet the patient needs speed, rigor of those rapidly growing DSOs is unmatched globally." — Ce verbatim de Hogan en Q4 2025 encapsule la thèse centrale : Align n'est pas un simple fabricant d'aligneurs mais une plateforme digitale intégrée (Invisalign + iTero + exocad + traitement planning) dont l'avantage compétitif réside dans la capacité à opérer à l'échelle mondiale avec les DSOs, segment en croissance structurelle double-digit. Le moat se renforce avec chaque scanner installé et chaque docteur formé, créant un écosystème à switching cost élevé.</div>
+      </div>
+
+      <div class="lbl">Métriques clés</div>
+      <div class="kpi-grid">
+      <div class="kpi-cell">
+        <div class="kpi-label">Revenue Q1 2026</div>
+        <div class="kpi-val" style="color:#3B6D11">$1.04B (+6.2% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Clear Aligner Volume</div>
+        <div class="kpi-val" style="color:#3B6D11">686K cases (record)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Non-GAAP EPS</div>
+        <div class="kpi-val" style="color:#3B6D11">$2.58 (+21% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Gross Margin</div>
+        <div class="kpi-val" style="color:#3B6D11">71% (+1pt YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Non-GAAP Op Margin</div>
+        <div class="kpi-val" style="color:#3B6D11">22% (+3pts YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">FCF Q1</div>
+        <div class="kpi-val" style="color:#854F0B">$120M</div>
+      </div></div>
+
+      <div class="lbl">Risques</div>
+      
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Le retail nord-américain reste en softness sur 2 trimestres consécutifs avec 'less patient traffic' et consumer sentiment pressé. Ce segment représente une part significative du CA et pourrait s'aggraver en récession.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · NA Retail Softness</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Les ASPs sont guidés en baisse de 1-2% pour 2026 par Morici, reflétant un mix pays défavorable (plus de marchés émergents), des discounts accrus et la pénétration de configurations sans refinements à prix inférieur.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · ASP Erosion</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Le conflit au Moyen-Orient est explicitement cité comme risque pour le trafic patient et la demande en Q2, avec impact potentiel sur les scanners et aligneurs dans la zone EMEA/APAC.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · Geopolitical Risk</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#378ADD"></div>
+        <div class="risk-text">La fabrication directe 3D (retainers/attachments) sera margin dilutive en 2026 avant de devenir accretive en H2 2027. Risque d'exécution sur le ramp-up manufacturing et l'adoption clinique.</div>
+        <div class="risk-level" style="color:#378ADD">LOW · 3D Print Margin Drag</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Le VBP (Volume Based Procurement) en Chine reste incertain avec des délais d'implémentation. 85% du business Chine est privé mais une extension au secteur privé pourrait impacter les ASPs significativement.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · China VBP Risk</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#378ADD"></div>
+        <div class="risk-text">Les revenus différés ont baissé de $77M (-6%) pour les aligneurs et $22M (-11%) pour S&S YoY, potentiellement signalant un ralentissement des engagements forward ou un changement de mix produit.</div>
+        <div class="risk-level" style="color:#378ADD">LOW · Deferred Rev Decline</div>
+      </div>
+
+      <div class="lbl">Points positifs</div>
+      <div class="pos-row"><span class="pos-check">✓</span><span>Volumes records d'aligneurs à 686K cas en Q1 2026 (+6.7% YoY), avec croissance double-digit en EMEA, APAC et LatAm, démontrant la réplication géographique du modèle Align.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Non-GAAP EPS en hausse de 21% YoY à $2.58, porté par l'expansion des marges : gross margin à 71% (+1pt YoY), non-GAAP operating margin à 22% (+3pts YoY).</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Le programme DSP génère une récurrence croissante avec 136K touch-up cases en 2025 (+36% YoY), expansion de US vers EMEA et lancement APAC prévu Q2 2026.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Les DSOs représentent ~25% des volumes avec une croissance double-digit dans toutes les régions, agissant comme 'force multiplier' pour l'adoption de la plateforme digitale Align.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>CEO Hogan a effectué un achat open-market de $1M en actions à $131.49 en août 2025, signal de confiance fort dans le dossier au creux du cycle.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Programme de rachat actif : $200M complétés à $143.85 en moyenne, $200M supplémentaires annoncés dès mai 2026, avec $800M encore autorisés.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>TAM massif sous-pénétré : 22M case starts annuels + 600M patients potentiels via les GP dentistes, avec seulement 88K docteurs actifs actuellement.</span></div>
+
+      <div style="margin-top:10px;font-size:13px;color:#333;line-height:1.6">
+        <strong style="font-size:10px;color:#999;text-transform:uppercase;display:block;margin-bottom:4px">
+          Vue analystes</strong>
+        14 analystes ·
+        <strong style="color:#185FA5">BUY</strong> ·
+        Target $206.86 (+19.9% upside)
+      </div>
+
+      <div class="catalyst-box">
+        <strong style="display:block;margin-bottom:4px;font-size:12px;font-weight:700">⚡ Prochains catalyseurs</strong>
+        
+      <strong style="font-size:11px;color:#378ADD">2026-07 — Résultats Q2 2026 — validation de la guidance $1.04-1.06B et potentiel relèvement FY si beat :</strong>
+      Un beat Q2 avec relèvement de guidance pourrait déclencher un re-rating significatif du Forward PE de 14x vers 18-20x <br>
+      <strong style="font-size:11px;color:#378ADD">2026-Q2 — Lancement DSP en APAC — expansion du programme subscription en Asie-Pacifique :</strong>
+      Devrait accélérer la récurrence et l'utilisation des docteurs en APAC, renforçant la croissance double-digit de la région <br>
+      <strong style="font-size:11px;color:#378ADD">2026-H2 — Déploiement limité de la fabrication directe 3D (retainers et attachments) :</strong>
+      Court terme margin dilutive mais ouvre un nouveau TAM et prépare l'accrétion de marge H2 2027 <br>
+      <strong style="font-size:11px;color:#378ADD">2026-H2 — Expansion du pilote US Invisalign ART (Advanced Restorative Treatment) avec exocad :</strong>
+      Pénétration du marché restoratif ($50B+ TAM global) via labs et dentistes généralistes, nouveau vecteur de croissance <br>
+      <strong style="font-size:11px;color:#378ADD">2026-05 à 2026-10 — Programme rachat $200M additionnel débutant le 1er mai 2026 :</strong>
+      Support au titre avec ~1.6% de la market cap racheté sur 6 mois, réduction du flottant <br>
+      <strong style="font-size:11px;color:#378ADD">2026-2027 — Implémentation potentielle du VBP en Chine (timing incertain) :</strong>
+      Risque de pression sur les ASPs dans le secteur public chinois; 85% du business est privé mais l'extension au privé serait matérielle <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Score NLP Claude — Q1 2026 + Q4 2025 · ~22,508 mots</span>
+        <span class="section-sub"> · 9 catégories · verbatims réels</span></div>
+      <span class="badge" style="background:#E8F0FB;color:#185FA5;border:1px solid #185FA5">62/100</span>
+    </div>
+    <div class="section-body">
+      <div class="nlp-header">
+        <div>
+          <div class="nlp-big" style="color:#185FA5">62<span class="nlp-big-unit">/100</span></div>
+          <div style="font-size:11px;color:#888;margin-top:2px">Pénalités : -10 pts</div>
+        </div>
+        <div class="nlp-meta">
+          <div class="nlp-meta-row">Transcripts : <span class="nlp-meta-val">Q1 2026 + Q4 2025</span></div>
+          <div class="nlp-meta-row">Mots analysés : <span class="nlp-meta-val">~22,508</span></div>
+          <div class="nlp-meta-row">Catégories : <span class="nlp-meta-val" style="color:#185FA5">
+            0/9 au maximum</span></div>
+          <div class="nlp-meta-row">Pénalités : <span class="nlp-meta-val" style="color:#A32D2D">
+            -10 pts</span></div>
+        </div>
+      </div>
+      <div class="nlp-bar-outer">
+        <div class="nlp-bar-inner" style="width:62%;background:linear-gradient(90deg,#185FA5,#185FA599)"></div>
+      </div>
+      <div class="chips"><span class="chip" style="background:#FAEEDA;color:#854F0B">MUST_BUY 7/9 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">BOTTLENECK 4/6 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">QUAL_VOL 4/6 ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">CAPEX 3/6 ↓</span><span class="chip" style="background:#FAEEDA;color:#854F0B">RECURRING 4/6 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">REPLICATION 5/6 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">DEMAND 2/3 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">NARRATIVE 2/3 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">INFRA 2/3 ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">NA RETAIL SOFTNESS -3pts ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">ASP DECLINE GUIDANCE -2pts ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">CONSERVATIVE GUIDANCE NO RAISE -2pts ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">GEOPOLITICAL RISK MIDDLE EAST -1pts ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">DEFERRED REVENUE DECLINE -1pts ⚠</span><span class="chip" style="background:#FCEBEB;color:#A32D2D">DIRECT FABRICATION MARGIN DILUTION -1pts ⚠</span></div>
+      <div class="lbl" style="margin-top:12px">Détail par catégorie — verbatims extraits par Claude</div>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">MUST_BUY</div>
+        <div class="nlp-wt">×3</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:78%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">7/9 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«Align has proven its leadership as the world's most sophisticated treatment planning and 3D printing manufacturing operation. Our ability to scale...is unmatched globally.»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">BOTTLENECK</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">4/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«more than 88,000 doctors submitted Invisalign cases globally...doctor utilization also increased year-over-year by 3.4%»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">QUAL_VOL</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">4/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«Clear Aligner shipments reached a record 686,000 cases, increasing 6.7% year-over-year...double-digit growth across our international businesses»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">CAPEX</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:50%;background:#E24B4A"></div></div>
+        <div class="nlp-score" style="color:#E24B4A">3/6 ↓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«capital expenditures at $31 million, primarily for manufacturing and technology upgrades»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">RECURRING</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">4/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«DSP touch-up cases continue to grow double-digit year-over-year across regions...Total DSP touch-up cases shipped were over 136,000, up 36% compared to 2024»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">REPLICATION</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:83%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">5/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«double-digit volume gains in EMEA, APAC, and Latin America...record growth in China and Latin America...surpassing one million patients treated with Invisalign in Latin America»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">DEMAND</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">2/3 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«expanding access to care to the more than 600 million potential patients that our digital technology can serve through GP dentists globally»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">NARRATIVE</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">2/3 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«record Clear Aligner shipments...better-than-expected quarter in Q1...non-GAAP EPS was $2.58, up 21% year over year»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">INFRA</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">2/3 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«Cash and cash equivalents -- $1.06 billion...free cash flow $120 million...additional $200 million expected to be repurchased»</em></span>
+      
+      
+      <div class="neg-box">
+        <div style="font-size:10px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:4px">
+          Pénalités documentées — -10 pts au total</div>
+        
+          <div class="neg-row">
+            <div class="neg-cat">NA RETAIL SOFTNESS</div>
+            <div style="flex:1;font-size:12px;color:#555">Hogan Q1: 'doctor customers reported less patient traffic during the quarter' pour le retail US. Q4: 'continued softness in North America retail chain where consumer sentiment and patient inflow remained pressured.' Ce segment pèse sur la croissance globale sur 2 trimestres consécutifs.</div>
+            <div class="neg-score">-3 pts</div>
+          </div>
+          <div class="neg-row">
+            <div class="neg-cat">ASP DECLINE GUIDANCE</div>
+            <div style="flex:1;font-size:12px;color:#555">Morici Q4: 'expect ASPs to work, you know, kind of model maybe one to 2% down. Overall' pour 2026. ASP Q1 à $1,250 seulement +$10 YoY, avec pression mix pays et discounts plus élevés qui compensent les hausses de prix.</div>
+            <div class="neg-score">-2 pts</div>
+          </div>
+          <div class="neg-row">
+            <div class="neg-cat">CONSERVATIVE GUIDANCE NO RAISE</div>
+            <div style="flex:1;font-size:12px;color:#555">Malgré le beat Q1, guidance 2026 simplement réaffirmée à 3-4% revenue growth et mid-single digit volume. Morici Q4: guidance 'assumes steady market dynamics and no major change in underlying market behavior.' Pas de relèvement malgré le momentum Q1.</div>
+            <div class="neg-score">-2 pts</div>
+          </div>
+          <div class="neg-row">
+            <div class="neg-cat">GEOPOLITICAL RISK MIDDLE EAST</div>
+            <div style="flex:1;font-size:12px;color:#555">Morici Q1: 'there is uncertainty and the potential for adverse impacts on patient traffic, consumer demand and shipping and freight resulting from ongoing military action in the Middle East.' Intégré explicitement dans la guidance Q2.</div>
+            <div class="neg-score">-1 pts</div>
+          </div>
+          <div class="neg-row">
+            <div class="neg-cat">DEFERRED REVENUE DECLINE</div>
+            <div style="flex:1;font-size:12px;color:#555">Q1 2026: Clear Aligner deferred revenues decreased $77M (-6%) et Systems/Services deferred revenues decreased $22M (-11%) YoY. Signal potentiel de normalisation des pré-paiements ou de la visibilité forward.</div>
+            <div class="neg-score">-1 pts</div>
+          </div>
+          <div class="neg-row">
+            <div class="neg-cat">DIRECT FABRICATION MARGIN DILUTION</div>
+            <div style="flex:1;font-size:12px;color:#555">Hogan Q4: 'that'll be somewhat margin dilutive in the sense as it begins to roll out in 2026.' L'impression 3D directe (retainers/attachments) sera margin dilutive en 2026 avant d'être accretive en H2 2027.</div>
+            <div class="neg-score">-1 pts</div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">GuruFocus — GF Score · GF Value · Warning Signs</span></div>
+      <span class="badge" style="background:#e8e0ff;color:#6633cc;border:1px solid #9966ff">GF Score 94/100</span>
+    </div>
+    <div class="section-body">
+      <div class="gf-box">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:12px">
+          <div>
+            <div class="gf-score-big">94<span style="font-size:20px;color:#aaa">/100</span></div>
+            <div style="font-size:11px;color:#5DCAA5;margin-top:3px">GF Score™ — Outperform</div>
+          </div>
+          <div style="flex:1;border-left:1.5px solid #2a2a4a;padding-left:14px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">GF Value : $250.94</div>
+            <div style="font-size:12px;color:#aaa">Modestly Undervalued —
+              <span style="color:#0F6E56;font-weight:700">-31.3% vs GF Value</span></div>
+          </div>
+        </div>
+        <div class="gf-row"><span class="gf-label">GF Score</span><span class="gf-val" style="color:#5DCAA5">94/100</span></div><div class="gf-row"><span class="gf-label">GF Value</span><span class="gf-val" style="color:#5DCAA5">$250.94</span></div><div class="gf-row"><span class="gf-label">Prix actuel</span><span class="gf-val" style="color:#5DCAA5">$172.50</span></div><div class="gf-row"><span class="gf-label">Upside vs GF Value</span><span class="gf-val" style="color:#5DCAA5">+49.7%</span></div><div class="gf-row"><span class="gf-label">Forward PE</span><span class="gf-val" style="color:#5DCAA5">14.0x</span></div><div class="gf-row"><span class="gf-label">Market Cap</span><span class="gf-val" style="color:#EF9F27">$12.4B</span></div><div class="gf-row"><span class="gf-label">Target Analystes</span><span class="gf-val" style="color:#5DCAA5">$206.86 (+19.9%)</span></div>
+        <div class="gf-row"><span class="gf-label">Warning signs</span>
+          <span class="gf-val" style="color:#EF9F27">1 au total</span></div>
+      </div>
+      <div class="warn-box">
+        <div style="font-size:10px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:6px">
+          ⚠ Warning Signs GuruFocus</div>
+        
+        <div class="warn-item">
+          <span class="warn-sev" style="background:#5DCAA5;color:#222">INFO</span>
+          <span>Valorisation Modestly Undervalued avec un upside de 49.7% vs GF Value — le marché semble pricer un scénario de croissance faible persistante, créant une asymétrie potentielle si la croissance se maintient mid-single digit.</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:9px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5;font-size:12px;color:#444;line-height:1.7">
+        <strong style="color:#0F6E56;font-size:11px">Lecture GuruFocus (analyse Claude)</strong><br>
+        Le GF Score de 94/100 est exceptionnel et classe ALGN parmi les entreprises à forte probabilité de surperformance selon le modèle GuruFocus. La GF Value à $250.94 implique un upside de 49.7% par rapport au cours actuel de $172.50, un décalage rarement observé pour un leader de cette qualité. Ce discount s'explique par la correction de 2024-2025 liée au ralentissement de croissance post-COVID et aux craintes macro sur la consommation discrétionnaire dentaire. Le Forward PE à 14x est historiquement bas pour ALGN (moyenne historique ~30-40x), reflétant un dé-rating sévère. Le modèle GF intègre la rentabilité élevée (ROE, marges) et la croissance attendue. L'absence de warnings sévères confirme un profil financier sain sans red flags structurels.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Phase Weinstein — Analyse précise MA30 semaine</span>
+        <span class="section-sub"> · 157 semaines · MA30W calculée en pandas</span></div>
+      <span class="badge" style="background:#E1F5EE;color:#0F6E56;border:1px solid #0F6E56">
+        Phase 2 — début</span>
+    </div>
+    <div class="section-body">
+      <div class="wein-box">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:12px">
+          <div>
+            <div style="font-size:36px;font-weight:700;line-height:1;color:#0F6E56">Phase 2</div>
+            <div style="font-size:18px;font-weight:600;color:#5DCAA5">Début</div>
+            <div style="font-size:11px;color:#aaa;margin-top:4px">Cassure récente de la MA30W. Point d'entrée optimal Weinstein. Volume à confirmer.</div>
+          </div>
+          <div style="flex:1;border-left:1.5px solid #2a2a4a;padding-left:14px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">
+              $172.50 vs MA30W $163.00</div>
+            <div style="font-size:12px;color:#aaa">Écart :
+              <span style="color:#5DCAA5;font-weight:700">
+                +5.8%</span></div>
+          </div>
+        </div>
+        <div class="wein-grid">
+          <div class="wein-cell"><div class="wein-clabel">Prix actuel</div>
+            <div class="wein-cval" style="color:#5DCAA5">$172.50</div></div>
+          <div class="wein-cell"><div class="wein-clabel">MA30W</div>
+            <div class="wein-cval" style="color:#EF9F27">$163.00</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Direction MA30W</div>
+            <div class="wein-cval" style="color:#5DCAA5">Ascendante ↑</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Volume</div>
+            <div class="wein-cval" style="color:#aaa">Stable</div></div>
+          <div class="wein-cell"><div class="wein-clabel">ATH 52S</div>
+            <div class="wein-cval" style="color:#aaa">$205.56 (-16.1%)</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Beta</div>
+            <div class="wein-cval" style="color:#aaa">1.81</div></div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#333;line-height:1.75;padding:10px 12px;background:#fafafa;
+                  border-radius:8px;border-left:3px solid #0F6E56">
+        <strong style="font-size:11px;font-weight:700;color:#0F6E56;text-transform:uppercase;
+                        display:block;margin-bottom:6px">Analyse Weinstein (rédigée par Claude)</strong>
+        ALGN a traversé un cycle complet sur 2022-2026. Après un ATH historique autour de $700+ en 2021, le titre a subi une Phase 4 prolongée et sévère (-80%+) jusqu'au creux de ~$122 en 2025, la MA30W étant en déclin continu pendant cette période. La formation d'un plancher s'est opérée entre $122 et $160 au S2 2024 et S1 2025, constituant une Phase 1 d'accumulation classique avec la MA30W qui s'est progressivement aplatie. L'achat du CEO Hogan à $131 en août 2025 coïncide avec cette zone de base. Au Q4 2025, le titre a commencé à franchir sa MA30W, qui était alors autour de $150-155, avec les résultats records qui ont catalysé le mouvement. Aujourd'hui au 30/04/2026 : le prix à $172.50 est 5.8% au-dessus de la MA30W à $163.00, celle-ci étant en ascension avec une pente de +3.44%/4 semaines. Le volume est stable, ce qui est typique d'un début de Phase 2 — pas encore de volume de confirmation massive. Le titre a rebondi de +37.1% depuis le bas 52S mais reste à -16.1% de l'ATH 52S ($205.56) et -17.2% vs ATH données. Le diagnostic est Phase 2 (début), cohérent avec le calcul pandas. Les éléments convergents : MA30W ascendante, prix au-dessus, pente positive. Les éléments de prudence : le franchissement est récent, le volume n'est pas explosif, et le titre a corrigé de l'ATH 52S à $205 vers $172, suggérant une possible consolidation. Stop calculé à $158.11 (sous la MA30W) est approprié. Niveaux à surveiller : résistance à $190-$208 (zone ATH 52S), support à $163 (MA30W), invalidation sous $158.
+        <br><br>
+        <strong style="font-size:11px;color:#185FA5">Stop :</strong> Clôture mensuelle sous MA30W (~$158.11) = invalide Phase 2
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Form 4 — Insiders · SEC EDGAR</span>
+        <span class="section-sub"> · 10 filings parsés</span></div>
+      <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #EF9F27">
+        CIK 0001097149</span>
+    </div>
+    <div class="section-body">
+      
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">EXERCISE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Morici John — EVP, CHIEF FINANCIAL OFFICER</div>
+            <div style="font-size:11px;color:#555">7,848 actions @ $0.00
+              = $0.00M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Morici John — EVP, CHIEF FINANCIAL OFFICER</div>
+            <div style="font-size:11px;color:#555">2,549 actions @ $190.02
+              = $0.48M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">EXERCISE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Hockridge Stuart A — EVP, GLOBAL HR</div>
+            <div style="font-size:11px;color:#555">4,310 actions @ $0.00
+              = $0.00M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Hockridge Stuart A — EVP, GLOBAL HR</div>
+            <div style="font-size:11px;color:#555">1,210 actions @ $190.02
+              = $0.23M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">EXERCISE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Coletti Julie Ann — EVP, CHIEF LEGAL &amp; REGULATORY</div>
+            <div style="font-size:11px;color:#555">5,864 actions @ $0.00
+              = $0.00M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Coletti Julie Ann — EVP, CHIEF LEGAL &amp; REGULATORY</div>
+            <div style="font-size:11px;color:#555">1,718 actions @ $190.02
+              = $0.33M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">EXERCISE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">HOGAN JOSEPH M — President and CEO</div>
+            <div style="font-size:11px;color:#555">40,248 actions @ $0.00
+              = $0.00M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">HOGAN JOSEPH M — President and CEO</div>
+            <div style="font-size:11px;color:#555">16,107 actions @ $190.02
+              = $3.06M · 2026-02-20</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Morici John — EVP, CHIEF FINANCIAL OFFICER</div>
+            <div style="font-size:11px;color:#555">7,969 actions @ $189.31
+              = $1.51M · 2026-02-18</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#E1F5EE;color:#0F6E56">ACHAT</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Coletti Julie Ann — EVP, CHIEF LEGAL &amp; REGULATORY</div>
+            <div style="font-size:11px;color:#555">42 actions @ $109.66
+              = $0.00M · 2025-07-31</div>
+          </div>
+        </div>
+      <div style="margin-top:10px;padding:8px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5;font-size:12px;color:#444;line-height:1.6">
+        <strong style="color:#0F6E56;font-size:11px">Analyse Claude des Form 4</strong><br>
+        Le signal insider le plus significatif est l'achat open-market du CEO Joe Hogan de 7,576 actions à $131.49 pour $1M le 1er août 2025, effectué près du bas 52 semaines ($122-$132). C'est un signal bullish fort d'un CEO qui met son propre capital à risque. Julie Coletti (EVP Legal) a également acheté 42 actions à $109.66 en juillet 2025, petit montant mais confirmant la conviction interne. En février 2026, les exercices RSU avec tax withholding de Hogan (40K actions exercées, 16K retenues pour impôts), Morici, Hockridge et Coletti sont des opérations routinières non-signifiantes. La vente de Morici de 7,969 actions à $189.31 ($1.51M) le 18 février 2026 est plus notable — c'est une vente effective post-exercise, mais Morici conserve 8,237 actions, montrant qu'il n'a pas liquidé massivement. Globalement, le profil insider est neutre-à-positif, l'achat de Hogan au creux dominant le signal.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Flux 13F + Validation croisée</span>
+        <span class="section-sub"> · institutionnels · sell-side · données marché</span></div>
+      <span class="inst-pill" style="background:#E1F5EE;color:#0F6E56;border:1px solid #5DCAA5">
+        ▲ BUY consensus</span>
+    </div>
+    <div class="section-body">
+      <div class="valid-grid">
+        
+        <div class="valid-cell" style="background:#FAEEDA;border-color:#EF9F27">
+          <div class="valid-label" style="color:#854F0B">Score NLP</div>
+          <div class="valid-val" style="color:#854F0B">62/100</div>
+          <div class="valid-sub" style="color:#854F0B">Qualité transcripts</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Consensus Analystes</div>
+          <div class="valid-val" style="color:#0F6E56">14 BUY · $206.86</div>
+          <div class="valid-sub" style="color:#0F6E56">+19.9% upside</div>
+        </div>
+        <div class="valid-cell" style="background:#FAEEDA;border-color:#EF9F27">
+          <div class="valid-label" style="color:#854F0B">FCF / Dividende</div>
+          <div class="valid-val" style="color:#854F0B">$120M Q1 / Pas de div</div>
+          <div class="valid-sub" style="color:#854F0B">Rachat $200M actif</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Phase Weinstein</div>
+          <div class="valid-val" style="color:#0F6E56">Phase 2 (début)</div>
+          <div class="valid-sub" style="color:#0F6E56">MA30W $163 ascendante</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">GF Score</div>
+          <div class="valid-val" style="color:#0F6E56">94/100</div>
+          <div class="valid-sub" style="color:#0F6E56">Modestly Undervalued</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Forward PE</div>
+          <div class="valid-val" style="color:#0F6E56">14.0x</div>
+          <div class="valid-sub" style="color:#0F6E56">Historiquement bas</div>
+        </div>
+      </div>
+      <div class="lbl">13F institutionnels + sell-side</div>
+      <table class="fund-table">
+        <thead><tr>
+          <th>Fonds / Acteur</th><th>Type</th>
+          <th style="text-align:right">Signal</th>
+          <th style="text-align:right">Verdict</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="fn">Vanguard Group</span>
+              <span class="ft">~11% ownership estimé, top holder passif</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Détention structurelle stable, rebalancing indiciel</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">→</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">BlackRock Inc.</span>
+              <span class="ft">~8% ownership estimé via iShares/fonds</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Détention structurelle, pas de signal directionnel</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">→</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">State Street Corp</span>
+              <span class="ft">~4% ownership estimé via SPDR ETFs</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Flux passifs liés à l'indice S&P MidCap/Large</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">→</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">T. Rowe Price</span>
+              <span class="ft">Historiquement actif sur ALGN, ~3-5% estimé</span></td>
+            <td style="font-size:11px;color:#888">Actif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Growth manager avec conviction historique sur le dossier</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Consensus Sell-Side (14 analystes)</span>
+              <span class="ft">BUY · Target moyen $206.86</span></td>
+            <td style="font-size:11px;color:#888">Sell-side</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">14 analystes à BUY, upside 19.9% vs cours actuel</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">CEO Joseph Hogan</span>
+              <span class="ft">Achat $1M @ $131.49 (août 2025)</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Achat open-market significatif au creux du cycle — signal bullish fort</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">CFO John Morici</span>
+              <span class="ft">Vente $1.51M @ $189.31 post-exercise (fév 2026)</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#854F0B;font-weight:700">Vente post-RSU exercise, conserve 8K actions — signal légèrement négatif</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">▼</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">EVP Julie Coletti</span>
+              <span class="ft">Achat $4.6K @ $109.66 (juil 2025)</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Petit achat open-market au creux absolu — signal positif symbolique</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲</span></td>
+          </tr></tbody>
+      </table>
+      <div style="margin-top:10px;font-size:12px;color:#444;line-height:1.7;
+                  padding:9px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5">
+        <strong style="color:#0F6E56;font-size:11px">Synthèse institutionnelle (Claude)</strong><br>
+        Le dossier ALGN bénéficie d'un consensus sell-side unanimement positif (14 BUY, target $207) et d'un signal insider remarquable avec l'achat de $1M du CEO Hogan au creux de $131. Les fonds passifs (Vanguard, BlackRock, State Street) détiennent ~23% en agrégé, assurant une liquidité structurelle. La vente du CFO Morici post-exercise est un signal modérément négatif mais contextuel (gestion fiscale RSU). L'alignement entre CEO skin-in-the-game, consensus analystes et valorisation GF Value attractive crée un profil institutionnel favorable.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-bottom:14px">
+    <div class="section-hdr">
+      <div><span class="section-title">Verdict Final — Go V3</span></div>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;color:#185FA5;background:#185FA515;
+                     padding:3px 9px;border-radius:10px">
+          Phase 2 début · +19.9% upside</span>
+        <span class="badge" style="background:#E8F0FB;color:#185FA5;border:1px solid #185FA5">
+          Score 62/100 · Conviction 6/10 — Healthy</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="comment-box" style="border-left-color:#185FA5">
+        <strong>Score NLP 62/100 · Conviction 6/10 — Healthy</strong>
+        ALGN obtient un score NLP de 62/100, reflétant un leader mondial incontesté de l'orthodontie digitale avec une croissance modérée et des vents contraires identifiés. Le scoring brut atteint 33/54 (61.1%) porté par le positionnement unique (MUST_BUY 7/9), la réplication géographique exceptionnelle (5/6) et la récurrence croissante via les DSOs et le DSP (4/6). Les pénalités de -10 points sont justifiées par la softness persistante du retail NA (-3), l'érosion des ASPs guidée (-2), la guidance conservative non relevée (-2), les risques géopolitiques (-1), le recul des deferred revenues (-1) et la dilution de marge 3D printing (-1). La valorisation est attractive : Forward PE 14x historiquement bas, GF Value $250.94 (+49.7% upside), consensus analystes à $206.86 (+19.9%). L'asymétrie risque/rendement est favorable avec un titre en Phase 2 début Weinstein, un CEO qui a acheté au creux, et un programme de rachat actif. Le risque principal est un ralentissement macro affectant la consommation dentaire discrétionnaire aux US. La conviction à 6/10 reflète un dossier de qualité avec catalyseurs identifiés mais une croissance mid-single digit qui n'est pas encore ré-accélérée.
+
+        <strong>Weinstein</strong>
+        Phase 2 (début) · MA30W $163.00 ·
+        Prix +5.8% vs MA30W ·
+        Cassure récente de la MA30W. Point d'entrée optimal Weinstein. Volume à confirmer.
+
+        <strong>Gestion de position</strong>
+        Entrée actuelle à $172.50 est acceptable en Phase 2 début avec la MA30W à $163 en support dynamique. Stop mensuel à $158, soit sous la MA30W et le stop calculé ($158.11), représentant un risque de -8.4%. Target CT (3-6 mois) : $195-$208 zone ATH 52S (+13-20%). Target MT (12 mois) : $225-$250 si la croissance se maintient et le re-rating se matérialise (+30-45%). Sizing recommandé : 3-4% du portefeuille maximum compte tenu du Beta 1.81 et de la phase technique encore jeune. Renforcement possible sur pullback vers $163-165 (test MA30W). Allègement partiel recommandé à $205+ (zone de résistance). Invalidation complète sous $155 en clôture mensuelle.
+
+        <strong>Analysts</strong>
+        14 analysts BUY · target $206.86
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Sources : Motley Fool — Q1 2026 (2026-04-29) · Q4 2025 (2026-02-04)<br>
+  EDGAR : CIK 0001097149 · 8 8-K · 10 Form 4<br>
+  GuruFocus : GF Score 94/100 · GF Value $$250.94 (Modestly Undervalued)<br>
+  Prix : $172.5 · 52S 122.0–208.31 ·
+  Cap ~$12B · 14 analysts BUY<br>
+  SEC Screener Pro Go V3 · Analyse Claude claude-opus-4-6 · 30 April 2026
+</div>
+</div>
+</body>
+</html>

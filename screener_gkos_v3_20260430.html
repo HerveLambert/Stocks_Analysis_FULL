@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SEC Screener Pro — GKOS · Go V3</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;background:#f0f2f5;color:#222;padding:14px 10px 40px;line-height:1.5;font-size:14px}
+.wrap{max-width:700px;margin:0 auto}
+.hdr{background:#1a1a2e;border-radius:12px;padding:16px 18px;color:#fff;margin-bottom:14px}
+.hdr h1{font-size:20px;font-weight:600}
+.hdr p{font-size:12px;color:#aaa;margin-top:4px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.hbadge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.method-box{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 13px;margin-bottom:13px}
+.method-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0;font-size:12px}
+.verdict-banner{border-radius:10px;padding:14px 16px;margin-bottom:13px;display:flex;align-items:center;gap:14px}
+.vb-right{flex:1}
+.vb-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.vb-sub{font-size:12px;line-height:1.6}
+.tcard{background:#fff;border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+.tcard-hdr{background:#1a1a2e;padding:13px 16px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start}
+.tcard-ticker{font-size:24px;font-weight:700}
+.tcard-co{font-size:11px;color:#bbb;margin-top:2px}
+.price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:13px 13px 0}
+@media(min-width:480px){.price-grid{grid-template-columns:repeat(4,1fr)}}
+.price-cell{background:#f5f5f5;border-radius:8px;padding:8px 10px}
+.pc-label{font-size:10px;color:#888}
+.pc-val{font-size:16px;font-weight:700;margin-top:2px}
+.section{margin:11px 13px;border:0.5px solid #e8e8e8;border-radius:10px;overflow:hidden}
+.section-hdr{background:#f8f8f8;border-bottom:0.5px solid #eee;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.section-title{font-size:13px;font-weight:700;color:#111}
+.section-sub{font-size:10px;color:#aaa}
+.section-body{padding:11px 12px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:600}
+.conv-wrap{display:flex;align-items:center;gap:8px}
+.conv-track{width:80px;height:5px;background:#555;border-radius:3px}
+.conv-fill{height:5px;border-radius:3px}
+.conv-label{font-size:11px;font-weight:700}
+.lbl{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;margin-top:12px}
+.lbl:first-child{margin-top:0}
+.sumtext{font-size:13px;color:#444;font-style:italic;line-height:1.65;padding:9px 11px;background:#fafafa;border-radius:7px;margin-bottom:10px}
+.evtable{width:100%;border-collapse:collapse}
+.evtable td{padding:6px 5px;font-size:12px;border-bottom:0.5px solid #f5f5f5;vertical-align:top}
+.evtable tr:last-child td{border-bottom:none}
+.ev-date{color:#888;white-space:nowrap;min-width:72px}
+.ev-sig{text-align:right;white-space:nowrap;font-size:11px;font-weight:700;min-width:58px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+@media(min-width:480px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+.kpi-cell{background:#f5f5f5;border-radius:7px;padding:7px 9px}
+.kpi-label{font-size:10px;color:#888}
+.kpi-val{font-size:14px;font-weight:700;margin-top:2px}
+.hlbox{border-radius:8px;padding:9px 11px;margin-bottom:10px;border:0.5px solid}
+.hlbox-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.hlbox-body{font-size:12px;line-height:1.6}
+.hlbox-sub{font-size:11px;color:#666;font-style:italic;margin-top:3px}
+.risk-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f5f5f5}
+.risk-row:last-child{border-bottom:none}
+.risk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.risk-text{flex:1;font-size:12px;line-height:1.5}
+.risk-level{font-size:11px;font-weight:700;white-space:nowrap}
+.pos-row{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12px;line-height:1.5}
+.pos-check{color:#3B6D11;font-size:15px;flex-shrink:0}
+.nlp-header{display:flex;align-items:flex-end;gap:14px;margin-bottom:10px}
+.nlp-big{font-size:52px;font-weight:700;line-height:1}
+.nlp-big-unit{font-size:18px;color:#aaa;font-weight:400}
+.nlp-meta{flex:1;border-left:2px solid #eee;padding-left:12px}
+.nlp-meta-row{font-size:12px;color:#555;padding:2px 0}
+.nlp-meta-val{font-weight:700;color:#222}
+.nlp-bar-outer{height:8px;background:#eee;border-radius:4px;margin:7px 0 13px}
+.nlp-bar-inner{height:8px;border-radius:4px}
+.nlp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid #f8f8f8}
+.nlp-row:last-child{border-bottom:none}
+.nlp-cat{min-width:140px;font-size:12px;color:#333;font-weight:500}
+.nlp-wt{font-size:10px;color:#aaa;min-width:24px}
+.nlp-track{flex:1;height:5px;background:#f0f0f0;border-radius:3px}
+.nlp-fill{height:5px;border-radius:3px}
+.nlp-score{font-size:11px;font-weight:700;min-width:48px;text-align:right}
+.nlp-excerpt{font-size:11px;color:#555;font-style:italic;margin-top:2px;padding-left:164px;display:block;line-height:1.5}
+.neg-box{margin-top:10px;padding:8px 11px;background:#FCEBEB;border-radius:7px;border-left:3px solid #E24B4A}
+.neg-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px}
+.neg-cat{min-width:130px;color:#A32D2D;font-weight:600}
+.neg-score{color:#A32D2D;font-weight:700;min-width:44px;text-align:right}
+.valid-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.valid-cell{border-radius:8px;padding:8px 10px;border:0.5px solid}
+.valid-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px}
+.valid-val{font-size:13px;font-weight:700}
+.valid-sub{font-size:11px;margin-top:2px;opacity:0.8}
+.inst-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.fund-table{width:100%;border-collapse:collapse;font-size:12px}
+.fund-table th{padding:5px 7px;text-align:left;font-size:10px;font-weight:700;color:#999;text-transform:uppercase;border-bottom:1px solid #eee;background:#fafafa}
+.fund-table td{padding:6px 7px;border-bottom:0.5px solid #f5f5f5;vertical-align:middle}
+.fund-table tr:last-child td{border-bottom:none}
+.fn{font-weight:600;color:#222}
+.ft{font-size:10px;color:#888;font-weight:400;display:block}
+.du{color:#3B6D11;font-weight:700}
+.dd{color:#A32D2D;font-weight:700}
+.dn{color:#854F0B;font-weight:700}
+.comment-box{font-size:13px;color:#222;line-height:1.75;padding:11px 13px;border-radius:8px;border-left:4px solid;background:#f9f9f9}
+.comment-box strong{display:block;font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-top:9px;margin-bottom:2px}
+.comment-box strong:first-child{margin-top:0}
+.catalyst-box{font-size:13px;line-height:1.65;padding:9px 12px;background:#f0f7ff;border-radius:8px;border-left:4px solid #378ADD;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{padding:3px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.footer{font-size:11px;color:#bbb;text-align:center;padding-top:11px;border-top:0.5px solid #e0e0e0;margin-top:8px;line-height:1.6}
+.accel-box{background:#f0f9f4;border:0.5px solid #5DCAA5;border-radius:8px;padding:9px 11px;margin-bottom:10px}
+.gf-box{background:#1a1a2e;border-radius:10px;padding:12px 14px;color:#fff;margin-bottom:10px}
+.gf-score-big{font-size:44px;font-weight:700;color:#5DCAA5;line-height:1}
+.gf-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #2a2a4a;font-size:12px}
+.gf-row:last-child{border-bottom:none}
+.gf-label{color:#aaa}
+.gf-val{font-weight:700}
+.warn-box{background:#FCEBEB;border-radius:8px;padding:8px 11px;border-left:3px solid #E24B4A;margin-top:8px}
+.warn-item{display:flex;align-items:flex-start;gap:7px;padding:3px 0;font-size:12px}
+.warn-sev{font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;margin-top:1px}
+.wein-box{background:#1a1a2e;border-radius:10px;padding:12px 14px;color:#fff;margin-bottom:10px}
+.wein-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.wein-cell{background:#2a2a4a;border-radius:7px;padding:7px 10px}
+.wein-clabel{font-size:10px;color:#aaa}
+.wein-cval{font-size:13px;font-weight:700;margin-top:2px}
+.f4-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid #f5f5f5;font-size:12px}
+.f4-row:last-child{border-bottom:none}
+.f4-type{padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap}
+.conv-score-box{display:flex;align-items:center;gap:16px;padding:12px 14px;border-radius:10px;margin-bottom:10px}
+.conv-score-num{font-size:56px;font-weight:700;line-height:1}
+.conv-score-right{flex:1}
+.conv-score-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.conv-score-sub{font-size:12px;line-height:1.6}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <h1>SEC Screener Pro — Go V3 · Rigueur Maximale</h1>
+  <p>GKOS · Glaukos Corporation &nbsp;·&nbsp;
+     Transcripts complets · NLP Claude · Form 4 · GuruFocus · Weinstein · 30 April 2026</p>
+  <div class="badges">
+    <span class="hbadge" style="background:#0F6E5630;color:#5DCAA5">SEC / EDGAR</span>
+    <span class="hbadge" style="background:#185FA530;color:#85B7EB">NLP Claude réel</span>
+    <span class="hbadge" style="background:#85400B30;color:#EF9F27">Weinstein Précis</span>
+    <span class="hbadge" style="background:#53400030;color:#FAC775">Form 4 Insiders</span>
+    <span class="hbadge" style="background:#3B6D1130;color:#7AC943">Score NLP 82/100</span>
+    <span class="hbadge" style="background:#4a003030;color:#e06faa">GuruFocus</span>
+  </div>
+</div>
+
+<div class="method-box">
+  <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px">🔬 Méthodologie Go V3 — Standard complet respecté</div>
+  <div class="method-row"><span>📄</span><span><strong>Passe 1 — Transcripts :</strong>
+    Fetch + lecture intégrale Motley Fool — Q1 2026 + Q4 2025. ~22,373 mots analysés par Claude.</span></div>
+  <div class="method-row"><span>🏛</span><span><strong>Passe 2 — SEC/EDGAR :</strong>
+    8 filings 8-K · 10 Form 4 insiders parsés · CIK 0001192448.</span></div>
+  <div class="method-row"><span>📊</span><span><strong>Passe 3 — GuruFocus + Marché :</strong>
+    GF Score, GF Value, warning signs · Prix $137.25 ·
+    52S $73.16–$145.25 ·
+    Cap ~$8B.</span></div>
+  <div class="method-row"><span>📈</span><span><strong>Passe 4 — Weinstein :</strong>
+    Historique hebdomadaire · MA30W calculée en pandas · Phase détectée automatiquement.</span></div>
+  <div class="method-row"><span>🤖</span><span><strong>Passe 5 — Analyse Claude :</strong>
+    Envoi des ~22,373 mots à l'API Claude · NLP 9 catégories · verbatims réels ·
+    score /100 · conviction /10 · rédaction complète.</span></div>
+</div>
+
+<div class="verdict-banner" style="background:#FAEEDA;border:1.5px solid #854F0B">
+  <div>
+    <div class="nlp-big" style="color:#854F0B">82<span class="nlp-big-unit">/100</span></div>
+    <div style="font-size:13px;color:#854F0B;font-weight:700">Score NLP Claude</div>
+  </div>
+  <div class="vb-right">
+    <div class="vb-title" style="color:#854F0B">GKOS · Phase 2 avancé · +2.1% upside</div>
+    <div class="vb-sub" style="color:#444">Glaukos accélère sa trajectoire de croissance avec un Q1 2026 record à $150.6M (+41% YoY), porté par iDose TR à ~$54M (+20% séquentiel) et le lancement d'Epioxa. La guidance annuelle est relevée à $620-635M dès le premier trimestre. L'accélération est documentée sur toutes les franchises principales : US Glaucoma +58%, International +23%, Corneal Health +15%. Epioxa crée un nouveau marché dans le kératocône sous-diagnostiqué avec un positionnement first-and-only. La marge brute progresse à 84%. Le risque principal reste la dépendance à iDose TR pour la croissance US Glaucoma (franchise legacy flat) et le creux transitoire Photrexa→Epioxa en Q2. La société cible le cash flow breakeven en 2026. Double moteur de croissance durable avec pipeline robuste (iDose TReX Phase 2b/3, iStent Infinite EU).</div>
+  </div>
+</div>
+
+<div class="conv-score-box" style="background:#1a1a2e;border:1.5px solid #5DCAA5">
+  <div>
+    <div class="conv-score-num" style="color:#5DCAA5">7<span style="font-size:24px;color:#aaa">/10</span></div>
+    <div style="font-size:11px;color:#5DCAA5;font-weight:700;margin-top:4px">Score Conviction</div>
+  </div>
+  <div class="conv-score-right">
+    <div class="conv-score-title" style="color:#fff">✅ Healthy</div>
+    <div class="conv-score-sub" style="color:#aaa">Glaukos accélère sa trajectoire de croissance avec un Q1 2026 record à $150.6M (+41% YoY), porté par iDose TR à ~$54M (+20% séquentiel) et le lancement d'Epioxa. La guidance annuelle est relevée à $62</div>
+  </div>
+</div>
+
+<div class="tcard" style="border:2px solid #854F0B">
+  <div class="tcard-hdr">
+    <div>
+      <div class="tcard-ticker">GKOS</div>
+      <div class="tcard-co">Glaukos Corporation · NYQ · Cap ~$8B · Healthcare · 1,094 employés</div>
+    </div>
+    <div style="text-align:right"><div style="font-size:10px;color:#666">Q1 2026 : 2026-04-29</div><div style="font-size:10px;color:#666">Q4 2025 : 2026-02-17</div></div>
+  </div>
+  <div class="price-grid">
+    <div class="price-cell"><div class="pc-label">Prix actuel</div>
+      <div class="pc-val">$137.25</div></div>
+    <div class="price-cell"><div class="pc-label">Bas 52S</div>
+      <div class="pc-val" style="color:#888">$73.16</div></div>
+    <div class="price-cell"><div class="pc-label">ATH 52S</div>
+      <div class="pc-val" style="color:#888">$145.25</div></div>
+    <div class="price-cell"><div class="pc-label">vs ATH</div>
+      <div class="pc-val" style="color:#A32D2D">-5.5%</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">SEC Monitor</span>
+        <span class="section-sub"> · Q1 2026 + Q4 2025 · ~22,373 mots lus intégralement par Claude</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div>
+          <div style="font-size:9px;color:#999;margin-bottom:2px">conviction</div>
+          <div class="conv-wrap">
+            <div class="conv-track">
+              <div class="conv-fill" style="width:70%;background:#854F0B"></div>
+            </div>
+            <span class="conv-label" style="color:#854F0B">7/10</span>
+          </div>
+        </div>
+        <span class="badge" style="background:#E1F5EE;color:#0F6E56;border:1px solid #0F6E56">
+          ✓ Healthy
+        </span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="sumtext">L'analyse comparative des transcripts Q4 2025 et Q1 2026 révèle une montée en puissance cohérente du discours management. En Q4, Tom Burns posait les fondations : 'milestone year', premier franchissement des $500M, FDA approval Epioxa, readministration iDose TR. Le ton était prudemment optimiste avec des warnings explicites sur le 'fairly material dip in Q2' pour Epioxa et les headwinds compétitifs internationaux. En Q1, le discours s'est nettement durci vers la confiance : guidance relevée immédiatement, 'record-breaking revenue across all main franchises', 'best-in-class growth profile well into the next decade'. Les verbatims clés évoluent : la couverture Epioxa passe de '~50%' à '~65%' de la population US, les payer lives de '~50% commercial' à '>100M lives including 4 of 5 largest payers'. iDose TR passe de $45M à $54M séquentiel sans ralentissement. Le management maintient les headwinds internationaux mot pour mot ('competitive product trialing headwinds') mais ajoute 'growing contributions from iStent Infinite' comme offset. Notons l'ajout de DTC investments et l'expansion commerciale H2 comme nouveaux éléments. Le J-code permanent Epioxa (J2789 effectif le 1er juillet) est le catalyseur le plus attendu. La readministration iDose TR génère ses premières procédures réelles en Q1 versus 'not material' en Q4. Évolution nettement positive du narratif.</div>
+      
+      <div class="accel-box">
+        <div style="font-size:11px;font-weight:700;color:#0F6E56;margin-bottom:6px">
+          📈 Tableau d'accélération Q4 2025 → Q1 2026</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;font-size:11px">
+          <div style="font-weight:700;color:#555;padding:3px 0">Métrique</div>
+          <div style="font-weight:700;color:#185FA5;padding:3px 0;text-align:center">Q4 2025</div>
+          <div style="font-weight:700;color:#0F6E56;padding:3px 0;text-align:center">Q1 2026</div>
+          
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Consolidated Revenue</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$143.1M (+36% YoY)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$150.6M (+41% YoY) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">US Glaucoma</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$86.4M (+53% YoY)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$93.5M (+58% YoY) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">iDose TR Sales</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~$45M</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~$54M ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">International Glaucoma</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$32.8M (+18% reported)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$35.8M (+23% reported) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Corneal Health</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$24.0M (+12% YoY)</div>
+          <div style="color:#E24B4A;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$21.3M (+15% YoY) ↓</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Gross Margin</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~83% (implied)</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">84% (+120bps YoY) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">FY Guidance</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$600-620M</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">$620-635M (raised) ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Epioxa Site Coverage</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~50% US pop.</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~65% US pop. ↑</div>
+          <div style="color:#333;padding:3px 0;border-top:0.5px solid #eee">Epioxa Payer Lives</div>
+          <div style="color:#185FA5;text-align:center;padding:3px 0;border-top:0.5px solid #eee">~50% commercial</div>
+          <div style="color:#0F6E56;font-weight:700;text-align:center;padding:3px 0;border-top:0.5px solid #eee">>100M commercial lives ↑</div>
+        </div>
+      </div>
+      <div class="lbl">Events matériels</div>
+      <table class="evtable"><tbody>
+        <tr>
+          <td class="ev-date">2026-04-29</td>
+          <td style="font-size:12px;padding:6px 5px">Q1 2026 : revenue record $150.6M (+41% YoY), guidance relevée à $620-635M vs $600-620M</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-07-01</td>
+          <td style="font-size:12px;padding:6px 5px">J-code permanent J2789 pour Epioxa prend effet — devrait accélérer le remboursement et l'adoption</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-04-10</td>
+          <td style="font-size:12px;padding:6px 5px">Navratil (CDO) vend ~2,093 actions pour $0.23M à ~$117-120 — vente modeste post-vest</td>
+          <td class="ev-sig" style="color:#854F0B">⚠ neutre</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-03-25</td>
+          <td style="font-size:12px;padding:6px 5px">Burns (CEO) reçoit 23,564 actions en RSU awards; Thurman (CFO) vend 2,511 actions à $106.46</td>
+          <td class="ev-sig" style="color:#854F0B">⚠ neutre</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-02-17</td>
+          <td style="font-size:12px;padding:6px 5px">Q4 2025 : revenue record $143.1M (+36%), FY2025 $507.4M franchit les $500M, FDA approval Epioxa</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-01-01</td>
+          <td style="font-size:12px;padding:6px 5px">NDA supplement approuvé : readministration illimitée iDose TR chez patients cornée saine</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2025-Q4</td>
+          <td style="font-size:12px;padding:6px 5px">iStent Infinite obtient certification EU MDR et lance commercialement en Europe</td>
+          <td class="ev-sig" style="color:#3B6D11">🟢 positif</td>
+        </tr>
+        <tr>
+          <td class="ev-date">2026-Q2</td>
+          <td style="font-size:12px;padding:6px 5px">Management anticipe un creux transitoire Corneal Health lors de la migration Photrexa → Epioxa</td>
+          <td class="ev-sig" style="color:#A32D2D">🔴 négatif</td>
+        </tr></tbody></table>
+
+      <div class="hlbox" style="background:#E1F5EE;border-color:#5DCAA5;margin-top:10px">
+        <div class="hlbox-title" style="color:#0F6E56">Signal dominant — Verbatim extrait des transcripts</div>
+        <div class="hlbox-body">"record first quarter consolidated net sales of $150.6 million, up 41% on a reported basis and 39% on a constant currency basis" — Ce verbatim cristallise la thèse centrale : Glaukos accélère sa croissance organique d'un trimestre à l'autre (36%→41%) malgré une base en hausse, porté par un double moteur (iDose TR + Epioxa) qui n'en est qu'à ses débuts d'adoption. L'accélération est remarquable car elle intervient sans bénéfice complet du J-code Epioxa (effectif juillet 2026) et avec une franchise US legacy flat. La guidance relevée dès Q1 confirme que ce n'est pas un one-off saisonnier mais une trajectoire structurelle.</div>
+      </div>
+
+      <div class="lbl">Métriques clés</div>
+      <div class="kpi-grid">
+      <div class="kpi-cell">
+        <div class="kpi-label">Revenue Q1 2026</div>
+        <div class="kpi-val" style="color:#3B6D11">$150.6M (+41% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">iDose TR Q1</div>
+        <div class="kpi-val" style="color:#3B6D11">~$54M (+20% QoQ)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">US Glaucoma Q1</div>
+        <div class="kpi-val" style="color:#3B6D11">$93.5M (+58% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Intl Glaucoma Q1</div>
+        <div class="kpi-val" style="color:#3B6D11">$35.8M (+23% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Corneal Health Q1</div>
+        <div class="kpi-val" style="color:#854F0B">$21.3M (+15% YoY)</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Gross Margin Q1</div>
+        <div class="kpi-val" style="color:#3B6D11">84% (+120bps YoY)</div>
+      </div></div>
+
+      <div class="lbl">Risques</div>
+      
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Franchise US Glaucoma hors iDose TR guidée flat YoY — toute la croissance US dépend d'un seul produit (iDose TR ~$54M/Q soit 58% de la franchise). Risque de concentration élevé.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · Single-product dependency</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Creux transitoire Epioxa Q2 2026 documenté par management : 'fairly material dip' lié à la migration Photrexa et délais payer. Corneal Health revenue pourrait décevoir temporairement.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · Epioxa transition dip</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Competitive headwinds internationaux répétés verbatim sur 2 trimestres : 'new competitive product trialing headwinds in some of our major international markets'. iStent Infinite ne compense que partiellement.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · International competition</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#EF9F27"></div>
+        <div class="risk-text">Société pre-profitable ciblant cash flow breakeven en 2026 avec OpEx ~$555-560M en croissance mid-teens. Tout retard dans l'adoption Epioxa ou iDose repousse la profitabilité.</div>
+        <div class="risk-level" style="color:#EF9F27">MEDIUM · Pre-profitability risk</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-dot" style="background:#378ADD"></div>
+        <div class="risk-text">J-code permanent Epioxa (J2789) effectif seulement le 1er juillet 2026. Jusqu'à cette date, remboursement sous code miscellaneous avec risque de technical denials et adoption freinée.</div>
+        <div class="risk-level" style="color:#378ADD">LOW · J-code timing risk</div>
+      </div>
+
+      <div class="lbl">Points positifs</div>
+      <div class="pos-row"><span class="pos-check">✓</span><span>Revenue en accélération documentée : +36% Q4 → +41% Q1 reported, avec US Glaucoma +53% → +58%. iDose TR croît de $45M à $54M séquentiellement soit +20% QoQ sans signe de plateau.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Guidance relevée dès Q1 2026 de $600-620M à $620-635M, soit +$15M au midpoint, témoignant de la confiance management dans la trajectoire — implique >20% growth annuel maintenu.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Epioxa crée un nouveau marché avec positionnement first-and-only FDA-approved epi-on pour le kératocône. Couverture site de soins de 50% à 65% US en un trimestre, pipeline vers 95%.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Marge brute à 84% en expansion +120bps YoY avec guidance 84-86% pour l'année. Mix favorable iDose TR et Epioxa pousse la marge structurellement plus haut.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Readministration illimitée iDose TR approuvée et premiers cas réalisés en Q1 — crée un modèle de récurrence biologique pour les patients glaucomateux chroniques.</span></div><div class="pos-row"><span class="pos-check">✓</span><span>Payer access Epioxa déjà >100M vies commerciales couvertes incluant 4 des 5 plus grands payers US — progression remarquable pour un lancement rare disease de quelques mois.</span></div>
+
+      <div style="margin-top:10px;font-size:13px;color:#333;line-height:1.6">
+        <strong style="font-size:10px;color:#999;text-transform:uppercase;display:block;margin-bottom:4px">
+          Vue analystes</strong>
+        12 analystes ·
+        <strong style="color:#854F0B">STRONG BUY</strong> ·
+        Target $140.17 (+2.1% upside)
+      </div>
+
+      <div class="catalyst-box">
+        <strong style="display:block;margin-bottom:4px;font-size:12px;font-weight:700">⚡ Prochains catalyseurs</strong>
+        
+      <strong style="font-size:11px;color:#378ADD">2026-07-01 — J-code permanent J2789 pour Epioxa prend effet :</strong>
+      Devrait lever le principal frein à l'adoption : remboursement streamlined, fin des technical denials, accélération significative des volumes Epioxa H2 2026 <br>
+      <strong style="font-size:11px;color:#378ADD">2026-H2 — Expansion DTC et investissements commerciaux Epioxa :</strong>
+      Augmentation de la sensibilisation patients kératocône, accélération du diagnostic et du flux patients vers les sites de soins déployés <br>
+      <strong style="font-size:11px;color:#378ADD">2026-Q3/Q4 — Couverture Epioxa site de soins atteignant ~95% US :</strong>
+      Suppression du bottleneck géographique, expansion TAM adressable Epioxa <br>
+      <strong style="font-size:11px;color:#378ADD">2026-2027 — Résultats Phase II iDose TR en combinaison avec cataracte et iStent Infinite :</strong>
+      Si positifs, renforcement des négociations payer et élargissement massif de l'indication iDose TR <br>
+      <strong style="font-size:11px;color:#378ADD">2026 — Cash flow breakeven ciblé par le management :</strong>
+      Inflexion vers la profitabilité déclencherait une re-rating par les investisseurs value/GARP <br>
+      <strong style="font-size:11px;color:#378ADD">2027+ — iDose TReX Phase 2b/3 données (IOP reduction 8.6-10.8 mmHg à 3 mois) :</strong>
+      Next-gen iDose avec durée d'action potentiellement supérieure, extension du pipeline glaucome <br>
+      <strong style="font-size:11px;color:#378ADD">2027+ — Readministration iDose TR devient contributeur matériel :</strong>
+      Management indique 'more significant contributor beginning in 2027' — ajoute un flux récurrent au modèle <br>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Score NLP Claude — Q1 2026 + Q4 2025 · ~22,373 mots</span>
+        <span class="section-sub"> · 9 catégories · verbatims réels</span></div>
+      <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #854F0B">82/100</span>
+    </div>
+    <div class="section-body">
+      <div class="nlp-header">
+        <div>
+          <div class="nlp-big" style="color:#854F0B">82<span class="nlp-big-unit">/100</span></div>
+          <div style="font-size:11px;color:#888;margin-top:2px">Pénalités : -9 pts</div>
+        </div>
+        <div class="nlp-meta">
+          <div class="nlp-meta-row">Transcripts : <span class="nlp-meta-val">Q1 2026 + Q4 2025</span></div>
+          <div class="nlp-meta-row">Mots analysés : <span class="nlp-meta-val">~22,373</span></div>
+          <div class="nlp-meta-row">Catégories : <span class="nlp-meta-val" style="color:#854F0B">
+            3/9 au maximum</span></div>
+          <div class="nlp-meta-row">Pénalités : <span class="nlp-meta-val" style="color:#A32D2D">
+            -9 pts</span></div>
+        </div>
+      </div>
+      <div class="nlp-bar-outer">
+        <div class="nlp-bar-inner" style="width:82%;background:linear-gradient(90deg,#854F0B,#854F0B99)"></div>
+      </div>
+      <div class="chips"><span class="chip" style="background:#FAEEDA;color:#854F0B">MUST_BUY 8/9 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">BOTTLENECK 4/6 ⚠</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">QUAL_VOL 6/6 ✓</span><span class="chip" style="background:#FAEEDA;color:#854F0B">CAPEX 4/6 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">RECURRING 5/6 ⚠</span><span class="chip" style="background:#FAEEDA;color:#854F0B">REPLICATION 5/6 ⚠</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">DEMAND 3/3 ✓</span><span class="chip" style="background:#E1F5EE;color:#0F6E56">NARRATIVE 3/3 ✓</span><span class="chip" style="background:#FAEEDA;color:#854F0B">INFRA 2/3 ⚠</span><a href="#pen-us-glaucoma-ex-idose-flat" style="text-decoration:none"><span class="chip" style="background:#FCEBEB;color:#A32D2D;cursor:pointer;border:1px solid #E24B4A;text-decoration:underline dotted">US GLAUCOMA EX IDOSE FLAT -3pts ⚠ 🔗</span></a><a href="#pen-international-competitive-headwinds" style="text-decoration:none"><span class="chip" style="background:#FCEBEB;color:#A32D2D;cursor:pointer;border:1px solid #E24B4A;text-decoration:underline dotted">INTERNATIONAL COMPETITIVE HEADWINDS -2pts ⚠ 🔗</span></a><a href="#pen-epioxa-transition-dip" style="text-decoration:none"><span class="chip" style="background:#FCEBEB;color:#A32D2D;cursor:pointer;border:1px solid #E24B4A;text-decoration:underline dotted">EPIOXA TRANSITION DIP -2pts ⚠ 🔗</span></a><a href="#pen-pre-profitability" style="text-decoration:none"><span class="chip" style="background:#FCEBEB;color:#A32D2D;cursor:pointer;border:1px solid #E24B4A;text-decoration:underline dotted">PRE PROFITABILITY -2pts ⚠ 🔗</span></a></div>
+      <div class="lbl" style="margin-top:12px">Détail par catégorie — verbatims extraits par Claude</div>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">MUST_BUY</div>
+        <div class="nlp-wt">×3</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:89%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">8/9 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«first and only FDA-approved topical drug therapy for keratoconus that does not require epithelium removal»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">BOTTLENECK</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">4/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«O2N systems are already actively deployed across locations serving roughly 65% of the U.S. population with the pipeline progressing to approximately 95%»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">QUAL_VOL</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">6/6 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«record first quarter consolidated net sales of $150.6 million, up 41% on a reported basis and 39% on a constant currency basis»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">CAPEX</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">4/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«broke ground on a new facility in Huntsville, Alabama...substantially increasing our investments in patient awareness, education and access»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">RECURRING</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:83%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">5/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«unlimited readministration of iDose TR in patients who maintain a healthy cornea...Reimplantation approval enabled the first successful readministration procedures this quarter»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">REPLICATION</div>
+        <div class="nlp-wt">×2</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:83%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">5/6 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«strong execution across our global commercial and development priorities...increasingly diversified leader in ophthalmology»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">DEMAND</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">3/3 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«rare sight-threatening disease that is currently far too often underdiagnosed, undiagnosed and untreated»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">NARRATIVE</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:100%;background:#0F6E56"></div></div>
+        <div class="nlp-score" style="color:#0F6E56">3/3 ✓</div>
+      </div>
+      <span class="nlp-excerpt"><em>«record first quarter...raising our full year 2026 net sales guidance to $620M to $635M compared to $600M to $620M previously»</em></span>
+      
+      <div class="nlp-row">
+        <div class="nlp-cat">INFRA</div>
+        <div class="nlp-wt">×1</div>
+        <div class="nlp-track"><div class="nlp-fill" style="width:67%;background:#EF9F27"></div></div>
+        <div class="nlp-score" style="color:#EF9F27">2/3 ⚠</div>
+      </div>
+      <span class="nlp-excerpt"><em>«maintaining focus on operating leverage and cash flow breakeven...Gross Margin 84% in the quarter, up by 120 basis points»</em></span>
+      
+      
+      <div class="neg-box">
+        <div style="font-size:10px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:4px">
+          Pénalités documentées — -9 pts au total</div>
+        
+          <div class="neg-row" id="pen-us-glaucoma-ex-idose-flat" style="border-left:3px solid #E24B4A;padding-left:6px;scroll-margin-top:80px">
+            <div class="neg-cat">US GLAUCOMA EX IDOSE FLAT</div>
+            <div style="flex:1;font-size:12px;color:#555">Management guide explicitement : 'Guidance for U.S. glaucoma sales (excluding iDose) remains flat year over year' — franchise legacy iStent stagnante, croissance entièrement dépendante de iDose TR.</div>
+            <div class="neg-score">-3 pts</div>
+          </div>
+          <div class="neg-row" id="pen-international-competitive-headwinds" style="border-left:3px solid #E24B4A;padding-left:6px;scroll-margin-top:80px">
+            <div class="neg-cat">INTERNATIONAL COMPETITIVE HEADWINDS</div>
+            <div style="flex:1;font-size:12px;color:#555">Verbatim Q4+Q1 : 'we continue to expect new competitive product trialing headwinds in some of our major international markets as we progress through 2026' — risque de pression sur glaucome international.</div>
+            <div class="neg-score">-2 pts</div>
+          </div>
+          <div class="neg-row" id="pen-epioxa-transition-dip" style="border-left:3px solid #E24B4A;padding-left:6px;scroll-margin-top:80px">
+            <div class="neg-cat">EPIOXA TRANSITION DIP</div>
+            <div style="flex:1;font-size:12px;color:#555">Q4 2025 risk section : 'fairly material dip in Q2 of 2026 due to the transition from Photrexa and payer approval delays' — creux transitoire documenté par le management.</div>
+            <div class="neg-score">-2 pts</div>
+          </div>
+          <div class="neg-row" id="pen-pre-profitability" style="border-left:3px solid #E24B4A;padding-left:6px;scroll-margin-top:80px">
+            <div class="neg-cat">PRE PROFITABILITY</div>
+            <div style="flex:1;font-size:12px;color:#555">Société toujours pre-cash-flow-breakeven, OpEx croissance mid-teens à ~$555-560M. Pas de FCF positif documenté. Cible breakeven 2026 mais non atteint.</div>
+            <div class="neg-score">-2 pts</div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">GuruFocus — GF Score · GF Value · Warning Signs</span></div>
+      <span class="badge" style="background:#e8e0ff;color:#6633cc;border:1px solid #9966ff">GF Score 84/100</span>
+    </div>
+    <div class="section-body">
+      <div class="gf-box">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:12px">
+          <div>
+            <div class="gf-score-big">84<span style="font-size:20px;color:#aaa">/100</span></div>
+            <div style="font-size:11px;color:#5DCAA5;margin-top:3px">GF Score™ — Good</div>
+          </div>
+          <div style="flex:1;border-left:1.5px solid #2a2a4a;padding-left:14px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">GF Value : $124.50</div>
+            <div style="font-size:12px;color:#aaa">Fairly Valued —
+              <span style="color:#EF9F27;font-weight:700">-8.0% vs GF Value</span></div>
+          </div>
+        </div>
+        <div class="gf-row"><span class="gf-label">GF Score</span><span class="gf-val" style="color:#5DCAA5">84/100</span></div><div class="gf-row"><span class="gf-label">GF Value</span><span class="gf-val" style="color:#EF9F27">$124.50</span></div><div class="gf-row"><span class="gf-label">Prix vs GF Value</span><span class="gf-val" style="color:#EF9F27">-8.0% (above GF Value)</span></div><div class="gf-row"><span class="gf-label">Forward PE</span><span class="gf-val" style="color:#E24B4A">298.4x</span></div><div class="gf-row"><span class="gf-label">Gross Margin</span><span class="gf-val" style="color:#5DCAA5">84%</span></div><div class="gf-row"><span class="gf-label">Revenue Growth</span><span class="gf-val" style="color:#5DCAA5">+41% YoY Q1</span></div><div class="gf-row"><span class="gf-label">Profitability</span><span class="gf-val" style="color:#EF9F27">Pre-breakeven</span></div><div class="gf-row"><span class="gf-label">Warnings</span><span class="gf-val" style="color:#5DCAA5">0 detected</span></div>
+        <div class="gf-row"><span class="gf-label">Warning signs</span>
+          <span class="gf-val" style="color:#EF9F27">2 au total</span></div>
+      </div>
+      <div class="warn-box">
+        <div style="font-size:10px;font-weight:700;color:#A32D2D;text-transform:uppercase;margin-bottom:6px">
+          ⚠ Warning Signs GuruFocus</div>
+        
+        <div class="warn-item">
+          <span class="warn-sev" style="background:#5DCAA5;color:#222">INFO</span>
+          <span>Forward PE de 298x reflète le statut pre-profitable de Glaukos — la société cible le cash flow breakeven en 2026, PE non pertinent à ce stade du cycle.</span>
+        </div>
+        <div class="warn-item">
+          <span class="warn-sev" style="background:#5DCAA5;color:#222">INFO</span>
+          <span>Prix 8% au-dessus de GF Value $124.50 mais dans une fenêtre de tolérance raisonnable pour un titre en accélération de croissance >40%.</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:9px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5;font-size:12px;color:#444;line-height:1.7">
+        <strong style="color:#0F6E56;font-size:11px">Lecture GuruFocus (analyse Claude)</strong><br>
+        Le GF Score de 84/100 place Glaukos dans la catégorie 'Good' de GuruFocus, reflétant une croissance forte mais une profitabilité encore absente. La GF Value à $124.50 indique que le cours actuel de $137.25 est ~8% au-dessus de la valeur intrinsèque estimée, classé 'Fairly Valued'. Le Forward PE de 298x est mécaniquement élevé pour une société pre-profitable en phase d'investissement agressif — il devrait comprimer rapidement à mesure qu'Epioxa et iDose TR scalent vers la profitabilité. L'absence de warnings sévères est notable pour un titre à cette phase de maturité. La marge brute de 84% en expansion est un signal fondamental positif. Le dossier GuruFocus confirme un profil croissance-premium typique des medtech en inflexion, où la valorisation se justifie par la trajectoire plutôt que les multiples actuels.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Phase Weinstein — Analyse précise MA30 semaine</span>
+        <span class="section-sub"> · 157 semaines · MA30W calculée en pandas</span></div>
+      <span class="badge" style="background:#E1F5EE;color:#0F6E56;border:1px solid #0F6E56">
+        Phase 2 — avancé</span>
+    </div>
+    <div class="section-body">
+      <div class="wein-box">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:12px">
+          <div>
+            <div style="font-size:36px;font-weight:700;line-height:1;color:#0F6E56">Phase 2</div>
+            <div style="font-size:18px;font-weight:600;color:#5DCAA5">Avancé</div>
+            <div style="font-size:11px;color:#aaa;margin-top:4px">Phase 2 avancée. Trend solide mais R/R réduit. Surveiller signes de Phase 3.</div>
+          </div>
+          <div style="flex:1;border-left:1.5px solid #2a2a4a;padding-left:14px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px">
+              $137.25 vs MA30W $107.65</div>
+            <div style="font-size:12px;color:#aaa">Écart :
+              <span style="color:#5DCAA5;font-weight:700">
+                +27.5%</span></div>
+          </div>
+        </div>
+        <div class="wein-grid">
+          <div class="wein-cell"><div class="wein-clabel">Prix actuel</div>
+            <div class="wein-cval" style="color:#5DCAA5">$137.25</div></div>
+          <div class="wein-cell"><div class="wein-clabel">MA30W</div>
+            <div class="wein-cval" style="color:#EF9F27">$107.65</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Direction MA30W</div>
+            <div class="wein-cval" style="color:#5DCAA5">Ascendante ↑</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Volume</div>
+            <div class="wein-cval" style="color:#aaa">Decreasing</div></div>
+          <div class="wein-cell"><div class="wein-clabel">ATH 52S</div>
+            <div class="wein-cval" style="color:#aaa">$137.26 (-0.0%)</div></div>
+          <div class="wein-cell"><div class="wein-clabel">Beta</div>
+            <div class="wein-cval" style="color:#aaa">0.78</div></div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#333;line-height:1.75;padding:10px 12px;background:#fafafa;
+                  border-radius:8px;border-left:3px solid #0F6E56">
+        <strong style="font-size:11px;font-weight:700;color:#0F6E56;text-transform:uppercase;
+                        display:block;margin-bottom:6px">Analyse Weinstein (rédigée par Claude)</strong>
+        GKOS présente un profil Weinstein Phase 2 avancée clairement établi. Chronologie : Le titre a connu une longue base d'accumulation (Phase 1) entre mi-2022 et fin 2023, oscillant entre $40 et $75 avec une MA30W plate. Le breakout Phase 2 s'est amorcé début 2024, coïncidant avec l'accélération des revenus iDose TR post-lancement. Depuis, la MA30W est en ascension continue, actuellement à $107.65 avec une pente de +4.29%/4 semaines — rythme soutenu et régulier. Le prix actuel à $137.25 se situe +27.5% au-dessus de la MA30W, un écart significatif mais cohérent avec la dynamique d'accélération des résultats. Le titre est à -0.0% de son ATH 52 semaines de $137.26, essentiellement à son plus haut historique. Depuis le bas 52S à $74.67, le titre a progressé de +83.8%, confirmant l'ampleur du mouvement Phase 2. Le volume en diminution sur les dernières semaines est le seul signal de prudence : en Phase 2 avancée, une divergence prix/volume peut précéder une consolidation latérale ou un passage en Phase 3. Cependant, tant que la MA30W reste ascendante et que le prix reste solidement au-dessus, la phase 2 reste intacte. Le stop calculé à $104.42 se situe 3% sous la MA30W, offrant un coussin de protection raisonnable (~24% sous le cours actuel). Points de vigilance : surveiller tout retour vers $115-120 (zone de premier support) et surtout toute cassure sous la MA30W à $107.65 qui signalerait un risque de transition Phase 3. Le titre vient de poster des résultats Q1 exceptionnels avec guidance relevée, ce qui renforce la probabilité de continuation Phase 2 à court terme. Verdict technique : Phase 2 avancée confirmée, tendance haussière intacte, surveiller le volume.
+        <br><br>
+        <strong style="font-size:11px;color:#185FA5">Stop :</strong> Clôture mensuelle sous MA30W (~$104.42) = invalide Phase 2
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Form 4 — Insiders · SEC EDGAR</span>
+        <span class="section-sub"> · 10 filings parsés</span></div>
+      <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #EF9F27">
+        CIK 0001192448</span>
+    </div>
+    <div class="section-body">
+      
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">1,237 actions @ $116.72
+              = $0.14M · 2026-04-10</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">210 actions @ $117.45
+              = $0.02M · 2026-04-10</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">614 actions @ $119.35
+              = $0.07M · 2026-04-10</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FCEBEB;color:#A32D2D">VENTE</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">32 actions @ $120.23
+              = $0.00M · 2026-04-10</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">1,146 actions @ $109.60
+              = $0.13M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">1,831 actions @ $109.60
+              = $0.20M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Thurman Alex R. — SVP &amp; CHIEF FINANCIAL OFFICER</div>
+            <div style="font-size:11px;color:#555">1,589 actions @ $109.60
+              = $0.17M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Gilliam Joseph E — PRESIDENT &amp; COO</div>
+            <div style="font-size:11px;color:#555">3,169 actions @ $109.60
+              = $0.35M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">G</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Burns Thomas William — CHAIRMAN &amp; CEO</div>
+            <div style="font-size:11px;color:#555">180,308 actions @ $0.00
+              = $0.00M · 2026-04-01</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">G</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Burns Thomas William — CHAIRMAN &amp; CEO</div>
+            <div style="font-size:11px;color:#555">180,308 actions @ $0.00
+              = $0.00M · 2026-04-01</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Burns Thomas William — CHAIRMAN &amp; CEO</div>
+            <div style="font-size:11px;color:#555">2,469 actions @ $109.60
+              = $0.27M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Burns Thomas William — CHAIRMAN &amp; CEO</div>
+            <div style="font-size:11px;color:#555">7,468 actions @ $109.60
+              = $0.82M · 2026-04-02</div>
+          </div>
+        </div>
+        <div class="f4-row">
+          <div><span class="f4-type" style="background:#FAEEDA;color:#854F0B">TAX_WITHHELD</span></div>
+          <div style="flex:1;padding-left:8px">
+            <div style="font-size:12px;font-weight:600">Navratil Tomas — CHIEF DEVELOPMENT OFFICER</div>
+            <div style="font-size:11px;color:#555">5,798 actions @ $109.60
+              = $0.64M · 2026-03-31</div>
+          </div>
+        </div>
+      <div style="margin-top:10px;padding:8px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5;font-size:12px;color:#444;line-height:1.6">
+        <strong style="color:#0F6E56;font-size:11px">Analyse Claude des Form 4</strong><br>
+        Les transactions Form 4 récentes sont majoritairement neutres à légèrement positives. Le CEO Burns a reçu 23,564 actions en RSU awards le 25/03/2026 et effectué des dons (Gift) de 180,308 actions vers un trust le 01/04 — planification patrimoniale standard, non un signal bearish. Les TAX_WITHHELD sur Burns ($1.09M), Gilliam ($0.35M), Thurman ($0.17M) et Navratil ($0.97M) sont des retenues automatiques sur vesting, strictement mécaniques. Les seules ventes open-market sont modestes : Navratil a vendu ~2,093 actions pour $0.23M à $116-120 le 10/04, et Thurman a vendu 2,511 actions pour $0.27M à $106.46 le 25/03. Ces montants sont faibles vs leurs positions restantes (Navratil : 90K+ actions, Thurman : 42K+). Aucune vente agressive du CEO ou du COO. Signal neutre : pas d'accumulation insider notable mais pas de liquidation non plus.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div><span class="section-title">Flux 13F + Validation croisée</span>
+        <span class="section-sub"> · institutionnels · sell-side · données marché</span></div>
+      <span class="inst-pill" style="background:#E1F5EE;color:#0F6E56;border:1px solid #5DCAA5">
+        ▲ STRONG BUY consensus</span>
+    </div>
+    <div class="section-body">
+      <div class="valid-grid">
+        
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Score NLP</div>
+          <div class="valid-val" style="color:#0F6E56">82/100</div>
+          <div class="valid-sub" style="color:#0F6E56">Croissance accélérante, double moteur</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Consensus Sell-Side</div>
+          <div class="valid-val" style="color:#0F6E56">STRONG BUY</div>
+          <div class="valid-sub" style="color:#0F6E56">12 analystes, target $140.17 (+2.1%)</div>
+        </div>
+        <div class="valid-cell" style="background:#FAEEDA;border-color:#EF9F27">
+          <div class="valid-label" style="color:#854F0B">FCF / Dividende</div>
+          <div class="valid-val" style="color:#854F0B">Pre-breakeven / Aucun</div>
+          <div class="valid-sub" style="color:#854F0B">Target CFO breakeven 2026</div>
+        </div>
+        <div class="valid-cell" style="background:#E1F5EE;border-color:#5DCAA5">
+          <div class="valid-label" style="color:#0F6E56">Phase Weinstein</div>
+          <div class="valid-val" style="color:#0F6E56">Phase 2 avancée</div>
+          <div class="valid-sub" style="color:#0F6E56">MA30W $107.65, +27.5% above</div>
+        </div>
+      </div>
+      <div class="lbl">13F institutionnels + sell-side</div>
+      <table class="fund-table">
+        <thead><tr>
+          <th>Fonds / Acteur</th><th>Type</th>
+          <th style="text-align:right">Signal</th>
+          <th style="text-align:right">Verdict</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="fn">Vanguard Group</span>
+              <span class="ft">~9% ownership estimé, détention passive</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Détention structurelle croissante avec la market cap</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">BlackRock Inc.</span>
+              <span class="ft">~8% ownership estimé, indexation</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Position stable, flux mécaniques d'index</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">State Street Corp.</span>
+              <span class="ft">~4% ownership estimé</span></td>
+            <td style="font-size:11px;color:#888">Passif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Détention index standard</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Wellington Management</span>
+              <span class="ft">Actif growth/healthcare spécialisé</span></td>
+            <td style="font-size:11px;color:#888">Actif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Historiquement positionné sur GKOS, profil medtech growth</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">T. Rowe Price</span>
+              <span class="ft">Actif growth, historique holder GKOS</span></td>
+            <td style="font-size:11px;color:#888">Actif</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Détention significative dans les fonds mid-cap growth</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Consensus Sell-Side (12 analystes)</span>
+              <span class="ft">STRONG BUY, target moyen $140.17</span></td>
+            <td style="font-size:11px;color:#888">Sell-side</td>
+            <td style="text-align:right"><span style="color:#854F0B;font-weight:700">Target quasi atteint (+2.1%), upside limité au target actuel mais ratings forts</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Thomas Burns (CEO)</span>
+              <span class="ft">23,564 RSU awards + 180K gift to trust</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#3B6D11;font-weight:700">Accumulation RSU, planification patrimoniale, aucune vente open-market</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#3B6D11">▲▲</span></td>
+          </tr>
+          <tr>
+            <td><span class="fn">Navratil / Thurman (CDO/CFO)</span>
+              <span class="ft">Ventes modestes ~$0.5M combinées</span></td>
+            <td style="font-size:11px;color:#888">Insider</td>
+            <td style="text-align:right"><span style="color:#854F0B;font-weight:700">Ventes post-vest routinières, montants faibles vs positions restantes</span></td>
+            <td style="text-align:right"><span class="ta" style="color:#854F0B">→</span></td>
+          </tr></tbody>
+      </table>
+      <div style="margin-top:10px;font-size:12px;color:#444;line-height:1.7;
+                  padding:9px 11px;background:#f0f9f4;border-radius:7px;
+                  border-left:3px solid #5DCAA5">
+        <strong style="color:#0F6E56;font-size:11px">Synthèse institutionnelle (Claude)</strong><br>
+        La base institutionnelle de GKOS est dominée par des fonds passifs majeurs (Vanguard, BlackRock, State Street ~21% combiné) assurant une liquidité stable. Les fonds actifs growth/healthcare (Wellington, T. Rowe Price) sont historiquement positionnés, validant le profil medtech en accélération. Le consensus sell-side STRONG BUY de 12 analystes est unanime mais le target moyen à $140.17 offre seulement +2.1% d'upside — les targets devront être relevés post-Q1. Les insiders ne signalent aucune alerte : le CEO accumule via RSU sans vente, les ventes CDO/CFO sont routinières et modestes.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-bottom:14px">
+    <div class="section-hdr">
+      <div><span class="section-title">Verdict Final — Go V3</span></div>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;color:#854F0B;background:#854F0B15;
+                     padding:3px 9px;border-radius:10px">
+          Phase 2 avancé · +2.1% upside</span>
+        <span class="badge" style="background:#FAEEDA;color:#854F0B;border:1px solid #854F0B">
+          Score 82/100 · Conviction 7/10 — Healthy</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="comment-box" style="border-left-color:#854F0B">
+        <strong>Score NLP 82/100 · Conviction 7/10 — Healthy</strong>
+        Glaukos mérite un score NLP de 82/100, le plaçant dans le haut du spectre des compounders de croissance en accélération. La thèse centrale repose sur un double moteur de croissance exceptionnel : iDose TR qui accélère ($45M→$54M séquentiel, +58% YoY US Glaucoma) et Epioxa qui ouvre un marché first-and-only dans le kératocône sous-diagnostiqué. L'accélération de la croissance consolidée de +36% à +41% YoY est remarquable et justifie le relèvement de guidance dès Q1. Les pénalités (-9 pts) reflètent des risques réels : dépendance à iDose TR pour la croissance US, creux transitoire Epioxa Q2, headwinds internationaux, et statut pre-profitable. Le score se situe logiquement au-dessus d'ABBV (78, compounder mature avec segments en déclin) mais en dessous d'NVDA/MU (94, accélération explosive sur marchés plus larges). L'asymétrie risque/rendement est favorable à moyen terme : le J-code Epioxa en juillet et la rampe iDose TR offrent des catalyseurs identifiés. Le risque principal est la concentration sur iDose TR et le timing de profitabilité. À ce prix, le marché price déjà une exécution parfaite — toute déception sur l'adoption Epioxa ou la trajectoire iDose serait sévèrement sanctionnée.
+
+        <strong>Weinstein</strong>
+        Phase 2 (avancé) · MA30W $107.65 ·
+        Prix +27.5% vs MA30W ·
+        Phase 2 avancée. Trend solide mais R/R réduit. Surveiller signes de Phase 3.
+
+        <strong>Gestion de position</strong>
+        Entrée recommandée sur pullback vers $120-125, zone de confluence entre support intermédiaire et proximité MA30W ascendante. Sizing : 3-4% du portefeuille maximum étant donné le profil pre-profitable et la concentration single-product. Stop mensuel : $104.40 (sous MA30W à $107.65, soit -24% du cours actuel). Target CT (6 mois) : $150-155, correspondant au consensus relevé post-Q1 et à la poursuite de l'accélération iDose + J-code Epioxa. Target MT (12-18 mois) : $170-180 si la profitabilité se matérialise en 2026-2027. Ne pas renforcer au-dessus de $140 sans pullback préalable. Réduire d'un tiers si cassure sous $115 en clôture hebdomadaire.
+
+        <strong>Analysts</strong>
+        12 analysts STRONG BUY · target $140.17
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Sources : Motley Fool — Q1 2026 (2026-04-29) · Q4 2025 (2026-02-17)<br>
+  EDGAR : CIK 0001192448 · 8 8-K · 10 Form 4<br>
+  GuruFocus : GF Score 84/100 · GF Value $$124.50 (Fairly Valued)<br>
+  Prix : $137.25 · 52S 73.16–145.25 ·
+  Cap ~$8B · 12 analysts STRONG_BUY<br>
+  SEC Screener Pro Go V3 · Analyse Claude claude-opus-4-6 · 30 April 2026
+</div>
+</div>
+</body>
+</html>
